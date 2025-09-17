@@ -1,5 +1,6 @@
 #include    <stdio.h>
 #include    <stdlib.h>
+#include    <string.h>
 #define SDL_MAIN_HANDLED
 #include "SDL2/SDL.h"
 
@@ -36,7 +37,8 @@ SDL_Renderer* createRenderer(SDL_Window* window) {
 //function that handles the main program loop, inputs and cleanup after closing.
 int main() {
 
-    //struct World* world = load_world();
+    struct World* world = load_world();
+    print_world(world);
     SDL_Init(SDL_INIT_VIDEO);
 
     SDL_Window *window = createWindow();

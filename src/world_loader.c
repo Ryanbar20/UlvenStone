@@ -35,7 +35,8 @@ struct World* load_world() {
     int found = 0;
     //find world
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
-        if (strcmp(name,buffer) == -1) {
+        buffer[strcspn(buffer, "\n")] = '\0';
+        if (strcmp(name,buffer) == 0) {
             found = 1;
             break;
         }
@@ -82,4 +83,14 @@ struct World* load_world() {
     world->wall_amount = count;
     world->walls = walls;
     return world;
+}
+
+// prints the wall count and walls of the given world
+void print_world(struct World* world){
+    printf("Wall Amount: %d\n", world->wall_amount);
+
+    for (int i = 0; i<world->wall_amount;i++) {
+        struct Wall w = world->walls[i];
+        printf("%d %d %d %d %d %d %d\n",w.x1,w.y1,w.x2,w.y2,w.r,w.g,w.b);
+    }
 }
