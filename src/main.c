@@ -1,10 +1,14 @@
-#include <stdio.h>
+#include    <stdio.h>
+#include    <stdlib.h>
 #define SDL_MAIN_HANDLED
 #include "SDL2/SDL.h"
 
 //720p
 #define HEIGHT  720
 #define WIDTH   1280
+
+
+#include "world_loader.c"
 
 //function that initializes an SDL window
 //  also checks for correct initialization
@@ -31,11 +35,12 @@ SDL_Renderer* createRenderer(SDL_Window* window) {
 
 //function that handles the main program loop, inputs and cleanup after closing.
 int main() {
+
+    load_world();
     SDL_Init(SDL_INIT_VIDEO);
 
     SDL_Window *window = createWindow();
-    SDL_Renderer *renderer = createRenderer(window);
-    
+    //SDL_Renderer *renderer = createRenderer(window);
     SDL_Event e;
     int quit = 0;
     while (!quit){
