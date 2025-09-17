@@ -36,7 +36,7 @@ SDL_Renderer* createRenderer(SDL_Window* window) {
 //function that handles the main program loop, inputs and cleanup after closing.
 int main() {
 
-    load_world();
+    //struct World* world = load_world();
     SDL_Init(SDL_INIT_VIDEO);
 
     SDL_Window *window = createWindow();

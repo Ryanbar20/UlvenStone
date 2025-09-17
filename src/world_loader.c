@@ -37,7 +37,7 @@ struct World* load_world() {
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
         if (strcmp(name,buffer) == -1) {
             found = 1;
-            continue;
+            break;
         }
     }
     // check if world found
@@ -48,26 +48,38 @@ struct World* load_world() {
 
     struct Wall* walls = (struct Wall*)malloc(MAX_WALLS * sizeof(struct Wall));
     int count = 0;
+    int x1; int y1; int x2; int y2; int r; int g; int b;
     // read world
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
-        //malloc to max walls and then realloc
-
-
         // if we reached the end of this world declaration
         if (strcmp("END",buffer) == -1) {
             break;
         }
+        //malloc to max walls and then realloc
+        if (sscanf(buffer, "%d %d %d %d %d %d %d",&x1,&y1,&x2,&y2,&r,&g,&b) != 7) {
+            printf("Parse error on: %s\n", buffer);
+            free(walls);
+            return NULL;
+        }
+        struct Wall w = {x1,y1,x2,y2,r,g,b};
+        walls[count] = w;
+        count++; 
     }
 
+    printf("%d\n",count);
     struct Wall* temp = (struct Wall*)realloc(walls, count*sizeof(struct Wall));
     if (temp == NULL) {
         printf("Reallocation failed!\n");
     } else {
         walls = temp;       
     }
-    
-
-    printf()
-    free(walls);
-    return NULL;
+    struct World* world = (struct World*)malloc(sizeof(struct World));
+    if (world == NULL) {
+        printf("Memory allocation failed for World\n");
+        free(walls);
+        return NULL;
+    }
+    world->wall_amount = count;
+    world->walls = walls;
+    return world;
 }
