@@ -1,4 +1,5 @@
 #include    <stdio.h>
+#include    <math.h>
 #include    <stdlib.h>
 #include    <string.h>
 #define SDL_MAIN_HANDLED
@@ -8,7 +9,7 @@
 #define HEIGHT  720
 #define WIDTH   1280
 
-
+#include "utils.c"
 #include "world_loader.c"
 
 //function that initializes an SDL window
