@@ -94,3 +94,39 @@ void print_world(struct World* world){
         printf("%d %d %d %d %d %d %d\n",w.x1,w.y1,w.x2,w.y2,w.r,w.g,w.b);
     }
 }
+
+
+void print_world_layout(struct World* world) {
+    printf("Wall Amount: %d\n", world->wall_amount);
+    int maxy = 0; int miny = 0;int maxx =0;int minx =0;
+    //get world dimensions
+    for (int i =0; i<world->wall_amount;i++) {
+        struct Wall w = world->walls[i];
+        if (w.x1 > maxx)        {maxx = w.x1;}
+        else if (w.x1 <minx)    {minx = w.x1;}
+        if (w.x2 > maxx)        {maxx = w.x2;}
+        else if (w.x2 <minx)    {minx = w.x2;}
+        if (w.y1 > maxy)        {maxy = w.y1;}
+        else if (w.y1 <miny)    {miny = w.y1;}
+        if (w.y2 > maxy)        {maxy = w.y2;}
+        else if (w.y2 <miny)    {miny = w.y2;}
+    }
+    
+    //get char[][] containing world layout
+    char layout[maxy-miny+1][maxx-minx+1];
+    memset(layout, '-',sizeof(layout));
+    for (int i =0; i<world->wall_amount;i++) {
+        struct Wall w = world->walls[i];
+        layout[w.y1-miny][w.x1-minx] = '#';
+        layout[w.y2-miny][w.x2-minx] = '#';
+    }
+
+    for (int y = maxy-miny; y>=0; y--) {
+        for (int x = 0; x<=(maxx-minx);x++) {
+            printf("%c",layout[y][x]);
+        }
+        printf("\n");
+    }
+
+
+}

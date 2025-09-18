@@ -39,6 +39,7 @@ int main() {
 
     struct World* world = load_world();
     print_world(world);
+    print_world_layout(world);
     SDL_Init(SDL_INIT_VIDEO);
 
     SDL_Window *window = createWindow();
@@ -55,7 +56,9 @@ int main() {
         }
     }
 
-    
+    //free data
+    free(world->walls);
+    free(world);
     SDL_DestroyWindow(window);
     SDL_Quit();
     return 0;
