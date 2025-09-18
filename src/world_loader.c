@@ -7,10 +7,8 @@
     handle data allocation
 */
 struct Wall{
-    int x1;
-    int y1;
-    int x2;
-    int y2;
+    struct v2_f v1;
+    struct v2_f v2;
     int r;
     int g;
     int b;
@@ -62,7 +60,7 @@ struct World* load_world() {
             free(walls);
             return NULL;
         }
-        struct Wall w = {x1,y1,x2,y2,r,g,b};
+        struct Wall w = {{x1,y1},{x2,y2},r,g,b};
         walls[count] = w;
         count++; 
     }
@@ -91,7 +89,7 @@ void print_world(struct World* world){
 
     for (int i = 0; i<world->wall_amount;i++) {
         struct Wall w = world->walls[i];
-        printf("%d %d %d %d %d %d %d\n",w.x1,w.y1,w.x2,w.y2,w.r,w.g,w.b);
+        printf("%d %d %d %d %d %d %d\n",(int) w.v1.x,(int) w.v1.y,(int) w.v2.x,(int) w.v2.y,(int) w.r,w.g,w.b);
     }
 }
 
@@ -102,14 +100,14 @@ void print_world_layout(struct World* world) {
     //get world dimensions
     for (int i =0; i<world->wall_amount;i++) {
         struct Wall w = world->walls[i];
-        if (w.x1 > maxx)        {maxx = w.x1;}
-        else if (w.x1 <minx)    {minx = w.x1;}
-        if (w.x2 > maxx)        {maxx = w.x2;}
-        else if (w.x2 <minx)    {minx = w.x2;}
-        if (w.y1 > maxy)        {maxy = w.y1;}
-        else if (w.y1 <miny)    {miny = w.y1;}
-        if (w.y2 > maxy)        {maxy = w.y2;}
-        else if (w.y2 <miny)    {miny = w.y2;}
+        if (w.v1.x > maxx)        {maxx = w.v1.x;}
+        else if (w.v1.x <minx)    {minx = w.v1.x;}
+        if (w.v2.x > maxx)        {maxx = w.v2.x;}
+        else if (w.v2.x <minx)    {minx = w.v2.x;}
+        if (w.v1.y > maxy)        {maxy = w.v1.y;}
+        else if (w.v1.y <miny)    {miny = w.v1.y;}
+        if (w.v2.y > maxy)        {maxy = w.v2.y;}
+        else if (w.v2.y <miny)    {miny = w.v2.y;}
     }
     
     //get char[][] containing world layout
@@ -117,8 +115,8 @@ void print_world_layout(struct World* world) {
     memset(layout, '-',sizeof(layout));
     for (int i =0; i<world->wall_amount;i++) {
         struct Wall w = world->walls[i];
-        layout[w.y1-miny][w.x1-minx] = '#';
-        layout[w.y2-miny][w.x2-minx] = '#';
+        layout[(int) w.v1.y-miny][(int) w.v1.x-minx] = '#';
+        layout[(int) w.v2.y-miny][(int) w.v2.x-minx] = '#';
     }
 
     for (int y = maxy-miny; y>=0; y--) {
