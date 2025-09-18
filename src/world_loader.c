@@ -1,10 +1,7 @@
 #define MAX_WALLS 100
 /*
     TODO:
-    read world.txt
-    parse walls
-    handle multiple worlds
-    handle data allocation
+    handle world choice
 */
 struct Wall{
     struct v2_f v1;
