@@ -5,16 +5,15 @@
 #define SDL_MAIN_HANDLED
 #include "SDL2/SDL.h"
 
+#define HEIGHT  560
+#define WIDTH   1000
+#define FOV 100
+#define RENDER_DIST 10
+
 
 #include "utils.c"
 #include "world_loader.c"
 
-#define HEIGHT  560
-#define WIDTH   1000
-
-//game vars
-#define FOV 100
-#define RENDER_DIST 10
 struct v2_f view;
 struct v2_f pos;
 
@@ -69,7 +68,7 @@ void cast_rays(SDL_Renderer* renderer,struct World* world) {
 
         for (int i=0; i<world->wall_amount; i++) {
             struct Wall w = world->walls[i];
-            int d = check_hit(ray,pos,&w);
+            int d = check_hit(ray,pos,w.v1, w.v2);
             if (d != -1 && d < wall_hit_distance) {
                 wall_hit = &w;
                 wall_hit_distance = d;
