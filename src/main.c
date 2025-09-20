@@ -60,27 +60,36 @@ SDL_Renderer* createRenderer(SDL_Window* window) {
             draw wall to screen
 */
 void cast_rays(SDL_Renderer* renderer,struct World* world) {
+    struct Wall* wall_hit;
+    float wall_hit_distance;
     for (int i =0; i<FOV; i++) {
+        //printf("\n");
         float angle = -FOV / 2 + i;
         struct v2_f ray = rotate(DEG_TO_RAD(angle),view);
-        struct Wall* wall_hit = NULL;
-        float wall_hit_distance = RENDER_DIST + 10;
+        wall_hit = NULL;
+        wall_hit_distance = RENDER_DIST + 10;
 
         for (int i=0; i<world->wall_amount; i++) {
             struct Wall w = world->walls[i];
             float d = check_hit(ray,pos,w.v1, w.v2);
-            if (d != -1.0 && d < wall_hit_distance) {
-                wall_hit = &w;
+            if (d >= 0 && d < wall_hit_distance) {
+                wall_hit = world->walls + i;
                 wall_hit_distance = d;
             }
         }
         if (wall_hit == NULL) {
             continue;
         }
+        //printf("%f %f %f %f %f\n",wall_hit_distance,wall_hit->v1.x,wall_hit->v1.y,wall_hit->v2.x,wall_hit->v2.y);
         float b = angle > 0? 90 - angle : 90 + angle;
         float corrected_dist = wall_hit_distance * sin(DEG_TO_RAD(b));
-        SDL_Rect wall_piece = {(WIDTH/FOV * i),HEIGHT/2 - 1/2*(WALL_HEIGHT/corrected_dist),WIDTH/FOV, WALL_HEIGHT/corrected_dist};
-        SDL_SetRenderDrawColor(renderer,255,0,0,255);
+        SDL_Rect wall_piece = {
+            (WIDTH/FOV * i),
+            HEIGHT/2 - 0.5*((float) WALL_HEIGHT/corrected_dist),
+            WIDTH/FOV, 
+            (float) WALL_HEIGHT/corrected_dist
+        };
+        SDL_SetRenderDrawColor(renderer,wall_hit->r,wall_hit->g,wall_hit->b,255);
         SDL_RenderFillRect(renderer,&wall_piece);
 
     }
@@ -99,10 +108,11 @@ int main() {
     print_world_layout(world);
 
     view    = set_length(1, (struct v2_f) {-1,-1});
-    pos     = (struct v2_f) {3,3};
+    pos     = (struct v2_f) {4.5,4.5};
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window *window = createWindow();
     SDL_Renderer *renderer = createRenderer(window);
+    
     
     SDL_Event e;
     int quit = 0;
