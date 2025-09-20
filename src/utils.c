@@ -1,7 +1,7 @@
 
 #define PI              3.14159265359
-#define RAD_TO_DEG(x)   x * (PI / 180)
-#define DEG_TO_RAD(x)   x * (180 / PI)
+#define RAD_TO_DEG(x)   x * (180 / PI)
+#define DEG_TO_RAD(x)   x * (PI / 180)
 
 
 

@@ -9,7 +9,7 @@
 #define WIDTH   1000
 #define FOV 100
 #define RENDER_DIST 10
-
+#define WALL_HEIGHT 100
 
 #include "utils.c"
 #include "world_loader.c"
@@ -61,27 +61,34 @@ SDL_Renderer* createRenderer(SDL_Window* window) {
 */
 void cast_rays(SDL_Renderer* renderer,struct World* world) {
     for (int i =0; i<FOV; i++) {
-        int angle = -FOV / 2 + i;
-        struct v2_f ray = set_length(10,rotate(DEG_TO_RAD(angle),view));
+        float angle = -FOV / 2 + i;
+        struct v2_f ray = rotate(DEG_TO_RAD(angle),view);
         struct Wall* wall_hit = NULL;
-        int wall_hit_distance = -100;
+        float wall_hit_distance = RENDER_DIST + 10;
 
         for (int i=0; i<world->wall_amount; i++) {
             struct Wall w = world->walls[i];
-            int d = check_hit(ray,pos,w.v1, w.v2);
-            if (d != -1 && d < wall_hit_distance) {
+            float d = check_hit(ray,pos,w.v1, w.v2);
+            if (d != -1.0 && d < wall_hit_distance) {
                 wall_hit = &w;
                 wall_hit_distance = d;
             }
         }
-        if (wall_hit != NULL) {
-            printf("HIT\n");
+        if (wall_hit == NULL) {
+            continue;
         }
         
+        float b = angle > 0? 90 - angle : 90 + angle;
+        float corrected_dist = wall_hit_distance * sin(DEG_TO_RAD(b));
+        printf("%f %f %f %f\n",angle,wall_hit_distance, b, corrected_dist);
+        SDL_Rect wall_piece = {(WIDTH/FOV * i),HEIGHT/2 - 1/2*(WALL_HEIGHT/corrected_dist),WIDTH/FOV, WALL_HEIGHT/corrected_dist};
+        SDL_SetRenderDrawColor(renderer,255,0,0,255);
+        SDL_RenderFillRect(renderer,&wall_piece);
+
     }
 
 
-
+    
 }
 
 
@@ -93,12 +100,12 @@ int main() {
     print_world(world);
     print_world_layout(world);
 
-    view    = (struct v2_f) {0,1};
-    pos     = (struct v2_f) {0,0};
+    view    = set_length(1, (struct v2_f) {0,-1});
+    pos     = (struct v2_f) {3,3};
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window *window = createWindow();
     SDL_Renderer *renderer = createRenderer(window);
-    cast_rays(renderer,world);
+    
     SDL_Event e;
     int quit = 0;
     while (!quit){
@@ -108,9 +115,29 @@ int main() {
                 quit=1;
                 continue;
             }
+            if (e.type == SDL_KEYDOWN) {
+                switch (e.key.keysym.sym)
+                {
+                case SDLK_LEFT:
+                    view = rotate(DEG_TO_RAD(-5.0),view);
+                    break;
+                case SDLK_RIGHT:
+                    view = rotate(DEG_TO_RAD(5.0),view);
+                    break;
+                default :
+                    break;
+                }
+            }
         }
-
+        
+        SDL_SetRenderDrawColor( renderer, 0, 0, 0, 0 );
+        SDL_RenderClear( renderer );
+        SDL_SetRenderDrawColor(renderer,0,0,64,255);
+        SDL_RenderFillRect(renderer, &((SDL_Rect) {0,0,WIDTH,HEIGHT /2}));
         //rendering
+        cast_rays(renderer,world);
+       
+        SDL_RenderPresent( renderer );
     }
 
     //free data
