@@ -62,8 +62,8 @@ SDL_Renderer* createRenderer(SDL_Window* window) {
 void cast_rays(SDL_Renderer* renderer,struct World* world) {
     struct Wall* wall_hit;
     float wall_hit_distance;
-    for (int i =0; i<FOV; i++) {
-        float angle = -FOV / 2 + i;
+    for (int i =0; i<WIDTH; i++) {
+        float angle = -FOV / 2 + i * ((float) FOV) / ((float) WIDTH) ;
         struct v2_f ray = rotate(DEG_TO_RAD(angle),view);
         wall_hit = NULL;
         wall_hit_distance = RENDER_DIST + 10;
@@ -80,13 +80,13 @@ void cast_rays(SDL_Renderer* renderer,struct World* world) {
             continue;
         }
 
-
+        float projPlaneDist = ((float) WIDTH) / (2 * tan(DEG_TO_RAD(((float) FOV) / 2.0f)));
         float corrected_dist = wall_hit_distance  *cos(DEG_TO_RAD(angle));
-        float wall_height = (1/corrected_dist) * ((WIDTH / 2.0f) / tan( DEG_TO_RAD( (float) FOV / 2.0f)));
+        float wall_height = projPlaneDist * 0.25 / corrected_dist;
         SDL_Rect wall_piece = {
-            (int)( (WIDTH / (float)FOV) * i ),
+            i,
             (int)( (HEIGHT / 2) - (wall_height / 2) ),
-            (int)( WIDTH / (float)FOV ),
+            1,
             (int)( wall_height )
         };
         SDL_SetRenderDrawColor(renderer,wall_hit->r,wall_hit->g,wall_hit->b,255);
