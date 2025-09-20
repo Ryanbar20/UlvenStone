@@ -28,7 +28,6 @@ struct v2_f set_length(float len, struct v2_f vector) {
 }
 
 static inline struct v2_f rotate(float rad, struct v2_f vector) {
-
     return (struct v2_f) {vector.x * cos(rad) - vector.y*sin(rad), vector.x * sin(rad) + vector.y*cos(rad)};
 }
 
@@ -42,7 +41,6 @@ float check_hit(struct v2_f ray,struct v2_f position, struct v2_f w1, struct v2_
         v1_under = w1.x > position.x;
         v2_under = w2.x > position.x;
     } else {
-
         a_ray = ray.y / ray.x ;
         b_ray = position.y - a_ray * position.x;
         v1_under = w1.y < (w1.x * a_ray + b_ray);
@@ -52,12 +50,11 @@ float check_hit(struct v2_f ray,struct v2_f position, struct v2_f w1, struct v2_
         return (float) -1;
     }
     
-
     float hit_x;
     float hit_y;
 
-    if (ray.x == 0) {
-        if (w1.x==w2.x) {
+    if (w1.x==w2.x) {
+        if (ray.x == 0) {
             if (0 != w1.x) {
                 return (float) -1;
             }
@@ -66,41 +63,28 @@ float check_hit(struct v2_f ray,struct v2_f position, struct v2_f w1, struct v2_
             // dist2 is to check that the wall is in front of the player.
             float dist2 = get_distance(w1,forward_check_point);
             if (dist <= RENDER_DIST && dist2 < RENDER_DIST) {
-                //printf("w1 %f %f\t w2 %f %f\t ray%f %f\t d1 %f\t d2 %f\n",w1.x,w1.y,w2.x,w2.y,ray.x,ray.y,dist,dist2);
                 return dist;
             }
             dist = get_distance(w2,position);
             dist2 = get_distance(w2,forward_check_point);
             if (dist <= RENDER_DIST && dist2 < RENDER_DIST) {
-                //printf("w1 %f %f\t w2 %f %f\t ray%f %f\t d1 %f\t d2 %f\n",w1.x,w1.y,w2.x,w2.y,ray.x,ray.y,dist,dist2);
                 return dist;
             }
             return (float) -1;
         }
+        hit_x = w1.x;
+        hit_y = a_ray * hit_x + b_ray;
+    } else {
         float a_wall = (w1.y-w2.y) / (w1.x-w2.x);
         float b_wall = w1.y - a_wall * w1.x;
-        hit_x = position.x;
+        hit_x = ray.x==0 ? position.x : (b_ray - b_wall) / (a_wall - a_ray);
         hit_y = a_wall * hit_x + b_wall;
-    } else {
-        if (w1.x == w2.x) {
-            hit_x = w1.x;
-            hit_y = a_ray * hit_x + b_ray;
-            
-
-        } else {
-            float a_wall = (w1.y-w2.y) / (w1.x-w2.x);
-            float b_wall = w1.y - a_wall * w1.x;
-            hit_x = (b_ray - b_wall) / (a_wall - a_ray);
-            hit_y = a_wall * hit_x + b_wall;
-        }
-
     }
 
     float dist = get_distance((struct v2_f) {hit_x,hit_y}, position);
     struct v2_f sized_ray = add_vectors(position, set_length(RENDER_DIST,ray)); 
     float dist2 = get_distance((struct v2_f) {hit_x,hit_y},sized_ray);
     if (dist <= RENDER_DIST && dist2 < RENDER_DIST) {
-        //printf("w1 %f %f\t w2 %f %f\t ray%f %f\t d1 %f\t d2 %f\n",w1.x,w1.y,w2.x,w2.y,ray.x,ray.y,dist,dist2);
         return dist;
     }
     return (float) -1;
