@@ -27,12 +27,6 @@ v2_f set_length(float len, v2_f vector) {
     return (v2_f) {scale * vector.x, scale * vector.y};
 }
 
-float get_angle_between_vectors(v2_f v1, v2_f v2) {
-    float dot = v1.x*v2.x + v1.y*v2.y;
-    float angle = acos(dot / (get_length(v1)*get_length(v2)));
-    return angle;
-}
-
 
 static inline v2_f rotate(float rad, v2_f vector) {
     return (v2_f) {vector.x * cos(rad) - vector.y*sin(rad), vector.x * sin(rad) + vector.y*cos(rad)};

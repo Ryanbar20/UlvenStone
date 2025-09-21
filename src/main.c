@@ -77,8 +77,6 @@ void cast_rays(SDL_Renderer* renderer,struct World* world) {
     for (int i =0; i<WIDTH; i++) {
         //assign loop variables
         wall_hit = NULL;    wall_hit_distance = RENDER_DIST + 10;   ray = get_ray(i,perpendicular);
-        //constant variables
-        const float angle = get_angle_between_vectors(ray,view);
         
         //determine wall to draw, if any
         for (int j=0; j<world->wall_amount; j++) {
@@ -99,7 +97,9 @@ void cast_rays(SDL_Renderer* renderer,struct World* world) {
             continue;
         };
         //create pixel boundaries for column
-        const v2_f column = get_column(wall_hit_distance*cos(angle));
+        float dot = ray.x*view.x + ray.y*view.y;
+        float cos_angle = dot / (get_length(ray) * get_length(view));
+        const v2_f column = get_column(wall_hit_distance*cos_angle);
 
         //draw column with corresponding wall color
         SDL_SetRenderDrawColor(renderer,0,0,64,255);

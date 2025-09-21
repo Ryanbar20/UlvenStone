@@ -25,7 +25,7 @@ struct World* load_world() {
         fprintf(stderr, "Error while opening the world.txt file\n");
         return NULL;
     }
-    char name[] = "cube";
+    char name[] = "blouseWorld";
     char buffer[256];
     int found = 0;
     //find world
