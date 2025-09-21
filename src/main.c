@@ -10,6 +10,7 @@
 #define RENDER_DIST 100
 #define WALL_HEIGHT 0.1f
 
+#define CAM_HEIGHT  0.01f
 #define SCREEN_DIST 1   // corresponds to FOV (higher means less FOV)
 #define CAM_WIDTH 1.5f  // corresponds to FOV (higher means more FOV) (currently around 85deg)
 #include "utils.c"
@@ -50,8 +51,8 @@ SDL_Renderer* createRenderer(SDL_Window* window) {
 
 
 v2_f get_column(float distance) {
-    int y_lo = (int) (HEIGHT/2.0f - (WALL_HEIGHT/2.0f)/distance * HEIGHT / (WALL_HEIGHT/2.0f));
-    int y_hi = (int) (HEIGHT/2.0f + (WALL_HEIGHT - (WALL_HEIGHT/2.0f))/distance * HEIGHT / (WALL_HEIGHT/2.0f));
+    int y_lo = (int) (HEIGHT/2.0f - CAM_HEIGHT/distance * HEIGHT / CAM_HEIGHT);
+    int y_hi = (int) (HEIGHT/2.0f - (WALL_HEIGHT-CAM_HEIGHT/distance * HEIGHT / CAM_HEIGHT));
     y_lo = y_lo < 0 ? 0 : y_lo;
     y_hi = y_hi >= HEIGHT ? HEIGHT-1 : y_hi;
     return (v2_f) {y_lo, y_hi};
