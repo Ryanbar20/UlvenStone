@@ -4,8 +4,8 @@
     handle world choice
 */
 struct Wall{
-    struct v2_f v1;
-    struct v2_f v2;
+    v2_f v1;
+    v2_f v2;
     int r;
     int g;
     int b;

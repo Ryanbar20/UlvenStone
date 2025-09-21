@@ -15,8 +15,8 @@
 #include "utils.c"
 #include "world_loader.c"
 
-struct v2_f view;
-struct v2_f pos;
+v2_f view;
+v2_f pos;
 
 /*
  *  Todo:
@@ -50,24 +50,14 @@ SDL_Renderer* createRenderer(SDL_Window* window) {
 
 
 
-//cast 1 ray per degree of FOV
-/*
-    For angle of array:
-        make the ray
-        for wall in walls:
-            check if ray hit
-            if so, check if closest hit
-        if a wall has been hit:
-            draw wall to screen
-*/
+
 void cast_rays(SDL_Renderer* renderer,struct World* world) {
     struct Wall* wall_hit;
     float wall_hit_distance;
     for (int i =0; i<WIDTH; i++) {
-        struct v2_f perpendicular = rotate(DEG_TO_RAD(90),view);
+        v2_f perpendicular = rotate(DEG_TO_RAD(90),view);
         float dw = (CAM_WIDTH / 2.0f - ((CAM_WIDTH * i)/WIDTH));
-        struct v2_f pixel = {dw*perpendicular.x + view.x,dw*perpendicular.y + view.y};
-        struct v2_f ray = set_length(1,pixel);
+        v2_f ray = set_length(1,(v2_f) {dw*perpendicular.x + view.x,dw*perpendicular.y + view.y});
         float angle = get_angle_between_vectors(ray,view);
         wall_hit = NULL;
         wall_hit_distance = RENDER_DIST + 10;
@@ -112,8 +102,8 @@ int main() {
     print_world(world);
     print_world_layout(world);
 
-    view    = set_length(1, (struct v2_f) {0.5,2.5});
-    pos     = (struct v2_f) {0.5,0.5};
+    view    = set_length(1, (v2_f) {0.5,2.5});
+    pos     = (v2_f) {0.5,0.5};
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window *window = createWindow();
     SDL_Renderer *renderer = createRenderer(window);

@@ -5,41 +5,41 @@
 
 
 
-struct v2_f {
+typedef struct v2_f{
     float x;
     float y;
-};
+} v2_f;
 
-static inline float get_distance(struct v2_f v1, struct v2_f v2) {
+static inline float get_distance(v2_f v1, v2_f v2) {
     return sqrt((v1.x-v2.x)*(v1.x-v2.x)  +  (v1.y-v2.y)*(v1.y-v2.y));
 }
 
-static inline float get_length(struct v2_f vector) {
+static inline float get_length(v2_f vector) {
     return sqrt(vector.x * vector.x + vector.y * vector.y);
 }
 
-struct v2_f add_vectors(struct v2_f v1, struct v2_f v2) {
-    return (struct v2_f) {v1.x+v2.x,v1.y+v2.y};
+v2_f add_vectors(v2_f v1, v2_f v2) {
+    return (v2_f) {v1.x+v2.x,v1.y+v2.y};
 }
 
-struct v2_f set_length(float len, struct v2_f vector) {
+v2_f set_length(float len, v2_f vector) {
     float scale = len / get_length(vector);
-    return (struct v2_f) {scale * vector.x, scale * vector.y};
+    return (v2_f) {scale * vector.x, scale * vector.y};
 }
 
-float get_angle_between_vectors(struct v2_f v1, struct v2_f v2) {
+float get_angle_between_vectors(v2_f v1, v2_f v2) {
     float dot = v1.x*v2.x + v1.y*v2.y;
     float angle = acos(dot / (get_length(v1)*get_length(v2)));
     return angle;
 }
 
 
-static inline struct v2_f rotate(float rad, struct v2_f vector) {
-    return (struct v2_f) {vector.x * cos(rad) - vector.y*sin(rad), vector.x * sin(rad) + vector.y*cos(rad)};
+static inline v2_f rotate(float rad, v2_f vector) {
+    return (v2_f) {vector.x * cos(rad) - vector.y*sin(rad), vector.x * sin(rad) + vector.y*cos(rad)};
 }
 
 // returns -1 if not hit, else returns distance to hit
-float check_hit(struct v2_f ray,struct v2_f position, struct v2_f w1, struct v2_f w2) {
+float check_hit(v2_f ray,v2_f position, v2_f w1, v2_f w2) {
 
     int v1_under;
     int v2_under;
@@ -67,7 +67,7 @@ float check_hit(struct v2_f ray,struct v2_f position, struct v2_f w1, struct v2_
                 return (float) -1;
             }
             float dist = get_distance(w1,position);
-            struct v2_f forward_check_point = add_vectors(position, set_length(RENDER_DIST,ray));
+            v2_f forward_check_point = add_vectors(position, set_length(RENDER_DIST,ray));
             // dist2 is to check that the wall is in front of the player.
             float dist2 = get_distance(w1,forward_check_point);
             if (dist <= RENDER_DIST && dist2 < RENDER_DIST) {
@@ -89,9 +89,9 @@ float check_hit(struct v2_f ray,struct v2_f position, struct v2_f w1, struct v2_
         hit_y = a_wall * hit_x + b_wall;
     }
 
-    float dist = get_distance((struct v2_f) {hit_x,hit_y}, position);
-    struct v2_f sized_ray = add_vectors(position, set_length(RENDER_DIST,ray)); 
-    float dist2 = get_distance((struct v2_f) {hit_x,hit_y},sized_ray);
+    float dist = get_distance((v2_f) {hit_x,hit_y}, position);
+    v2_f sized_ray = add_vectors(position, set_length(RENDER_DIST,ray)); 
+    float dist2 = get_distance((v2_f) {hit_x,hit_y},sized_ray);
     if (dist <= RENDER_DIST && dist2 < RENDER_DIST) {
         return dist;
     }
