@@ -23,6 +23,7 @@ v2_f pos;
 /*
  *  Todo:
     Handle world spawn specialized to the world
+    Handle middle line error (where angle between ray and view = 0)
  * 
  */
 
@@ -61,7 +62,7 @@ v2_f get_column(float distance) {
 
 static inline v2_f get_ray(int screen_index,v2_f perpendicular) {
     float dw = (CAM_WIDTH / 2.0f - ((CAM_WIDTH * screen_index)/WIDTH));
-    return set_length(1,(v2_f) {dw*perpendicular.x + view.x,dw*perpendicular.y + view.y});
+    return set_length(1,(v2_f) {dw*perpendicular.x + SCREEN_DIST*  view.x,dw*perpendicular.y + SCREEN_DIST* view.y});
 }
 
 
@@ -86,8 +87,14 @@ void cast_rays(SDL_Renderer* renderer,struct World* world) {
             }
         }
 
-        //skip drawing stage if no wall has been hit
-        if (wall_hit == NULL) continue;
+        //skip drawing wall stage if no wall has been hit
+        if (wall_hit == NULL) {
+            SDL_SetRenderDrawColor(renderer,0,0,64,255);
+            SDL_RenderDrawLine(renderer,i,0,i,HEIGHT/2);
+            SDL_SetRenderDrawColor(renderer,64,64,64,255);
+            SDL_RenderDrawLine(renderer,i,HEIGHT/2.0f+1,i,HEIGHT-1);
+            continue;
+        };
         //create pixel boundaries for column
         const v2_f column = get_column(wall_hit_distance*cos(angle));
 
@@ -97,7 +104,7 @@ void cast_rays(SDL_Renderer* renderer,struct World* world) {
         SDL_SetRenderDrawColor(renderer,wall_hit->r,wall_hit->g,wall_hit->b,255);
         SDL_RenderDrawLine(renderer,i,column.y,i,column.x);
         SDL_SetRenderDrawColor(renderer,64,64,64,255);
-        SDL_RenderDrawLine(renderer,i,column.y,i,HEIGHT);
+        SDL_RenderDrawLine(renderer,i,column.y,i,HEIGHT-1);
 
     }   
 }
@@ -130,11 +137,21 @@ int main() {
             if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym)
                 {
-                case SDLK_LEFT:
-                    view = rotate(DEG_TO_RAD(5.0),view);
+                case SDLK_w:
+                    pos.x = pos.x + view.x;
+                    pos.y = pos.y + view.y;
                     break;
-                case SDLK_RIGHT:
-                    view = rotate(DEG_TO_RAD(-5.0),view);
+                case SDLK_s:
+                    pos.x = pos.x - view.x;
+                    pos.y = pos.y - view.y;
+                    break;
+                case SDLK_a:
+                    pos.x = pos.x - view.y;
+                    pos.y = pos.y + view.x;
+                    break;
+                case SDLK_d:
+                    pos.x = pos.x + view.y;
+                    pos.y = pos.y - view.x;
                     break;
                 default :
                     break;
