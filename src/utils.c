@@ -40,6 +40,7 @@ static inline struct v2_f rotate(float rad, struct v2_f vector) {
 
 // returns -1 if not hit, else returns distance to hit
 float check_hit(struct v2_f ray,struct v2_f position, struct v2_f w1, struct v2_f w2) {
+
     int v1_under;
     int v2_under;
     float a_ray = -1;

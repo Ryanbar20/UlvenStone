@@ -8,9 +8,10 @@
 #define HEIGHT  560
 #define WIDTH   1000
 #define FOV 100
-#define RENDER_DIST 10
-#define WALL_HEIGHT 100
-
+#define RENDER_DIST 100
+#define WALL_HEIGHT 0.1f
+#define SCREEN_DIST 1
+#define CAM_WIDTH 1.5f
 #include "utils.c"
 #include "world_loader.c"
 
@@ -63,31 +64,35 @@ void cast_rays(SDL_Renderer* renderer,struct World* world) {
     struct Wall* wall_hit;
     float wall_hit_distance;
     for (int i =0; i<WIDTH; i++) {
-        float angle = -FOV / 2 + i * ((float) FOV) / ((float) WIDTH) ;
-        struct v2_f ray = rotate(DEG_TO_RAD(angle),view);
+        struct v2_f perpendicular = rotate(DEG_TO_RAD(90),view);
+        float dw = (CAM_WIDTH / 2.0f - ((CAM_WIDTH * i)/WIDTH));
+        struct v2_f pixel = {dw*perpendicular.x + view.x,dw*perpendicular.y + view.y};
+        struct v2_f ray = set_length(1,pixel);
+        float angle = get_angle_between_vectors(ray,view);
         wall_hit = NULL;
         wall_hit_distance = RENDER_DIST + 10;
 
-        for (int i=0; i<world->wall_amount; i++) {
-            struct Wall w = world->walls[i];
+        for (int j=0; j<world->wall_amount; j++) {
+            struct Wall w = world->walls[j];
             float d = check_hit(ray,pos,w.v1, w.v2);
             if (d >= 0 && d < wall_hit_distance) {
-                wall_hit = world->walls + i;
+                wall_hit = world->walls + j;
                 wall_hit_distance = d;
             }
         }
         if (wall_hit == NULL) {
             continue;
         }
-
-        float projPlaneDist = ((float) WIDTH) / (2 * tan(DEG_TO_RAD(((float) FOV) / 2.0f)));
-        float corrected_dist = wall_hit_distance  *cos(DEG_TO_RAD(angle));
-        float wall_height = projPlaneDist * 0.25 / corrected_dist;
+        float corrected_dist = wall_hit_distance*cos(angle);
+        int y_lo = (int) (HEIGHT/2.0f - (WALL_HEIGHT/2.0f)/corrected_dist * HEIGHT / (WALL_HEIGHT/2.0f));
+        int y_hi = (int) (HEIGHT/2.0f + (WALL_HEIGHT - (WALL_HEIGHT/2.0f))/corrected_dist * HEIGHT / (WALL_HEIGHT/2.0f));
+        y_lo = y_lo < 0 ? 0 : y_lo;
+        y_hi = y_hi >= HEIGHT ? HEIGHT-1 : y_hi;
         SDL_Rect wall_piece = {
             i,
-            (int)( (HEIGHT / 2) - (wall_height / 2) ),
+            y_lo,
             1,
-            (int)( wall_height )
+            y_hi-y_lo
         };
         SDL_SetRenderDrawColor(renderer,wall_hit->r,wall_hit->g,wall_hit->b,255);
         SDL_RenderFillRect(renderer,&wall_piece);
@@ -107,8 +112,8 @@ int main() {
     print_world(world);
     print_world_layout(world);
 
-    view    = set_length(1, (struct v2_f) {-1,-1});
-    pos     = (struct v2_f) {4.5,4.5};
+    view    = set_length(1, (struct v2_f) {0.5,2.5});
+    pos     = (struct v2_f) {0.5,0.5};
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window *window = createWindow();
     SDL_Renderer *renderer = createRenderer(window);
@@ -127,10 +132,10 @@ int main() {
                 switch (e.key.keysym.sym)
                 {
                 case SDLK_LEFT:
-                    view = rotate(DEG_TO_RAD(-5.0),view);
+                    view = rotate(DEG_TO_RAD(5.0),view);
                     break;
                 case SDLK_RIGHT:
-                    view = rotate(DEG_TO_RAD(5.0),view);
+                    view = rotate(DEG_TO_RAD(-5.0),view);
                     break;
                 default :
                     break;
