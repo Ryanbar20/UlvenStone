@@ -8,9 +8,10 @@
 #define HEIGHT  560
 #define WIDTH   1000
 #define RENDER_DIST 100
-#define WALL_HEIGHT 0.1f
+#define WALL_HEIGHT 100.0f
 
-#define CAM_HEIGHT  0.01f
+#define PLAYER_HEIGHT 50.0f
+#define CAM_HEIGHT 50.0f
 #define SCREEN_DIST 1   // corresponds to FOV (higher means less FOV)
 #define CAM_WIDTH 1.5f  // corresponds to FOV (higher means more FOV) (currently around 85deg)
 #include "utils.c"
@@ -51,11 +52,11 @@ SDL_Renderer* createRenderer(SDL_Window* window) {
 
 
 v2_f get_column(float distance) {
-    int y_lo = (int) (HEIGHT/2.0f - CAM_HEIGHT/distance * HEIGHT / CAM_HEIGHT);
-    int y_hi = (int) (HEIGHT/2.0f - (WALL_HEIGHT-CAM_HEIGHT/distance * HEIGHT / CAM_HEIGHT));
+    int y_lo = (int) (HEIGHT/2.0f - ((PLAYER_HEIGHT/distance) * (HEIGHT / CAM_HEIGHT)) );
+    int y_hi = (int) (HEIGHT/2.0f + (((WALL_HEIGHT-PLAYER_HEIGHT)/distance * (HEIGHT / CAM_HEIGHT))));
     y_lo = y_lo < 0 ? 0 : y_lo;
     y_hi = y_hi >= HEIGHT ? HEIGHT-1 : y_hi;
-    return (v2_f) {y_lo, y_hi};
+    return (v2_f) {HEIGHT-y_hi,HEIGHT-y_lo};
 }
 
 static inline v2_f get_ray(int screen_index,v2_f perpendicular) {
@@ -91,8 +92,12 @@ void cast_rays(SDL_Renderer* renderer,struct World* world) {
         const v2_f column = get_column(wall_hit_distance*cos(angle));
 
         //draw column with corresponding wall color
+        SDL_SetRenderDrawColor(renderer,0,0,64,255);
+        SDL_RenderDrawLine(renderer,i,0,i,column.x);
         SDL_SetRenderDrawColor(renderer,wall_hit->r,wall_hit->g,wall_hit->b,255);
-        SDL_RenderDrawLine(renderer,i,column.x,i,column.y);
+        SDL_RenderDrawLine(renderer,i,column.y,i,column.x);
+        SDL_SetRenderDrawColor(renderer,64,64,64,255);
+        SDL_RenderDrawLine(renderer,i,column.y,i,HEIGHT);
 
     }   
 }
@@ -139,8 +144,6 @@ int main() {
         
         SDL_SetRenderDrawColor( renderer, 0, 0, 0, 0 );
         SDL_RenderClear( renderer );
-        SDL_SetRenderDrawColor(renderer,0,0,64,255);
-        SDL_RenderFillRect(renderer, &((SDL_Rect) {0,0,WIDTH,HEIGHT /2}));
         //rendering
         cast_rays(renderer,world);
         SDL_RenderPresent( renderer );
