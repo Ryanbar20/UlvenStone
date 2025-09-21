@@ -9,7 +9,7 @@
 #define WIDTH   1000
 #define RENDER_DIST 100
 #define WALL_HEIGHT 100.0f
-
+#define FPS 30.0f
 #define PLAYER_HEIGHT 50.0f
 #define CAM_HEIGHT 50.0f
 #define SCREEN_DIST 1   // corresponds to FOV (higher means less FOV)
@@ -46,6 +46,9 @@ SDL_Window* createWindow() {
 SDL_Renderer* createRenderer(SDL_Window* window) {
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (renderer == NULL) {
+        fprintf(stderr, "An error occured when initializing the renderer: %s\n", SDL_GetError());
+    }
+    if (SDL_SetRenderDrawBlendMode(renderer,SDL_BLENDMODE_BLEND) != 0) {
         fprintf(stderr, "An error occured when initializing the renderer: %s\n", SDL_GetError());
     }   
     return renderer;
@@ -127,8 +130,13 @@ int main() {
     
     SDL_Event e;
     int quit = 0;
+    int mouse_x = WIDTH/2; int mouse_y = HEIGHT/2;
+    int pause = 0;
+    int ticks = 0;
+    int dticks =0;
     while (!quit){
         //main game loop
+        ticks = SDL_GetTicks();
         while(SDL_PollEvent(&e) !=0){
             if (e.type == SDL_QUIT) {
                 quit=1;
@@ -153,17 +161,41 @@ int main() {
                     pos.x = pos.x + view.y;
                     pos.y = pos.y - view.x;
                     break;
+                case SDLK_p:
+                    pause = pause ? 0 : 1;
                 default :
                     break;
                 }
             }
+            if (!pause) {
+                SDL_GetMouseState(&mouse_x,&mouse_y);
+                if (mouse_x < (WIDTH/2)) {
+                    view = rotate(1.0,view);
+                } else if (mouse_x > (WIDTH/2)) {
+                    view = rotate(-1.0,view);
+                }
+                SDL_WarpMouseInWindow(window,WIDTH/2,HEIGHT/2);
+            }
+
+
         }
         
-        SDL_SetRenderDrawColor( renderer, 0, 0, 0, 0 );
         SDL_RenderClear( renderer );
         //rendering
         cast_rays(renderer,world);
+        if (pause) {
+            SDL_SetRenderDrawColor( renderer, 0,0,0, 100 );
+            SDL_Rect whole_screen = {0,0,WIDTH,HEIGHT};
+            SDL_RenderFillRect(renderer,&whole_screen);
+        }
         SDL_RenderPresent( renderer );
+
+        dticks = SDL_GetTicks() - ticks; // total ticks the frame took sofar
+        dticks = 1000/ FPS - dticks;    // ticks that are left to wait for next frame
+        if (dticks >0) {
+            SDL_Delay(dticks);
+        }
+
     }
 
     //free data
