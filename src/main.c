@@ -20,11 +20,10 @@
 #define SKY_COLOR 0,0,64,255
 #define FLOOR_COLOR 64,64,64,255
 
+
 #include "utils.c"
 #include "world_loader.c"
 
-v2_f view;
-v2_f pos;
 
 /*
  *  Todo:
@@ -88,7 +87,7 @@ void cast_rays(SDL_Renderer* renderer,struct World* world) {
         for (int j=0; j<world->wall_amount; j++) {
             //variables for this iteration
             const struct Wall w = world->walls[j];
-            const float d = check_hit(ray,pos,w.v1, w.v2);
+            const float d = check_hit(ray,w.v1, w.v2);
             if (d >= 0 && d < wall_hit_distance) {
                 wall_hit = world->walls + j;    wall_hit_distance = d;
             }
@@ -121,23 +120,24 @@ int main() {
     view    = set_length(1, (v2_f) {0.5,2.5});
     pos     = (v2_f) {0.5,0.5};
     SDL_Init(SDL_INIT_VIDEO);
-    SDL_Window *window = createWindow();
-    SDL_Renderer *renderer = createRenderer(window);
+    SDL_Window *window =        createWindow();
+    SDL_Renderer *renderer =    createRenderer(window);
     
     
     SDL_Event e;
-    int quit = 0;
-    int mouse_x = WIDTH/2; int mouse_y = HEIGHT/2;
-    int pause = 0;
-    int ticks = 0;
-    int dticks =0;
+    int quit    = 0;
+    int mouse_x = WIDTH/2; 
+    int mouse_y = HEIGHT/2;
+    int pause   = 0;
+    int ticks   = 0;
+    int dticks  = 0;
     while (!quit){
         //main game loop
         ticks = SDL_GetTicks();
         while(SDL_PollEvent(&e) !=0){
             if (e.type == SDL_QUIT) {
                 quit=1;
-                continue;
+                break;
             }
             if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym)
