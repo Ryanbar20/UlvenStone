@@ -38,7 +38,12 @@ static inline v2_f rotate(float rad, v2_f vector) {
 // returns -1 if not hit, else returns distance to hit
 float check_hit(v2_f ray, v2_f w1, v2_f w2) {
 
-    if (ray.x == 0) ray.x += EPSILON;
+    if (ray.x < EPSILON) {
+        if (fabs(w2.x-pos.x) < EPSILON && fabs(w1.x-pos.x) < EPSILON) {
+            return -1;
+        }
+        ray.x += EPSILON;
+    }
     const float a_ray     = ray.y / ray.x ;
     const float b_ray     = pos.y - a_ray * pos.x;
     // if wall is parralel, it wont hit
