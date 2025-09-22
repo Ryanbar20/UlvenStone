@@ -27,7 +27,6 @@
 
 /*
  *  Todo:
-    Handle world spawn specialized to the world
     Make world editor
  * 
  */
@@ -114,11 +113,11 @@ void cast_rays(SDL_Renderer* renderer,struct World* world) {
 int main() {
 
     struct World* world = load_world();
-    print_world(world);
-    print_world_layout(world);
-
-    view    = set_length(1, (v2_f) {0.5,2.5});
-    pos     = (v2_f) {0.5,0.5};
+    //print_world(world);
+    //print_world_layout(world);
+    view    = set_length(1, (v2_f) {0.1,1});
+    pos     = world->spawn;
+    printf("%f %f\n",pos.x,pos.y);
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window *window =        createWindow();
     SDL_Renderer *renderer =    createRenderer(window);
@@ -195,7 +194,7 @@ int main() {
         dticks = SDL_GetTicks() - ticks; // total ticks the frame took sofar
         dticks = 1000/ FPS - dticks;    // ticks that are left to wait for next frame
         if (dticks >0) {
-            printf("%d\n",dticks);
+            //printf("%d\n",dticks);
             SDL_Delay(dticks);
         }
 

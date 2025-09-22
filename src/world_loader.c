@@ -14,6 +14,7 @@ struct Wall{
 
 struct World{
     int wall_amount;
+    v2_f spawn;
     struct Wall* walls;
 };
 
@@ -45,15 +46,35 @@ struct World* load_world() {
     struct Wall* walls = (struct Wall*)malloc(MAX_WALLS * sizeof(struct Wall));
     int count = 0;
     int x1; int y1; int x2; int y2; int r; int g; int b;
+    char t;
+    int found_spawn = 0;
+    v2_f spawn;
     // read world
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
         // if we reached the end of this world declaration
-        if (strcmp("END",buffer) == -1) {
+        buffer[strcspn(buffer, "\n")] = '\0';
+        if (strcmp("END",buffer) == 0) {
             break;
         }
-        //malloc to max walls and then realloc
+        if (buffer[0] == 'S') {
+            found_spawn = 1;
+            if (sscanf(buffer, "%c %d %d",&t,&x1,&y1) != 3) {
+                printf("Parse error on: %s\n", buffer);
+                free(walls);
+                return NULL;
+            }
+            spawn.x = x1;
+            spawn.y = y1;
+            continue;
+        }
+
         if (sscanf(buffer, "%d %d %d %d %d %d %d",&x1,&y1,&x2,&y2,&r,&g,&b) != 7) {
             printf("Parse error on: %s\n", buffer);
+            free(walls);
+            return NULL;
+        }
+        if (!found_spawn) {
+            printf("Parse error on: %s\n Spawn should be specified before any walls", buffer);
             free(walls);
             return NULL;
         }
@@ -76,6 +97,7 @@ struct World* load_world() {
         return NULL;
     }
     world->wall_amount = count;
+    world->spawn = spawn;
     world->walls = walls;
     return world;
 }
