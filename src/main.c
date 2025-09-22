@@ -7,6 +7,8 @@
 
 #define HEIGHT  560
 #define WIDTH   1000
+
+
 #define RENDER_DIST 100
 #define WALL_HEIGHT 100.0f
 #define FPS 30.0f
@@ -14,6 +16,10 @@
 #define CAM_HEIGHT 50.0f
 #define SCREEN_DIST 1   // corresponds to FOV (higher means less FOV)
 #define CAM_WIDTH 1.5f  // corresponds to FOV (higher means more FOV) (currently around 85deg)
+
+#define SKY_COLOR 0,0,64,255
+#define FLOOR_COLOR 64,64,64,255
+
 #include "utils.c"
 #include "world_loader.c"
 
@@ -23,7 +29,7 @@ v2_f pos;
 /*
  *  Todo:
     Handle world spawn specialized to the world
-    Handle middle line error (where angle between ray and view = 0)
+    Make world editor
  * 
  */
 
@@ -64,7 +70,7 @@ v2_f get_column(float distance) {
 }
 
 static inline v2_f get_ray(int screen_index,v2_f perpendicular) {
-    float dw = (CAM_WIDTH / 2.0f - ((CAM_WIDTH * screen_index)/WIDTH));
+    const float dw = (CAM_WIDTH / 2.0f - ((CAM_WIDTH * screen_index)/WIDTH));
     return set_length(1,(v2_f) {dw*perpendicular.x + SCREEN_DIST*  view.x,dw*perpendicular.y + SCREEN_DIST* view.y});
 }
 
@@ -88,26 +94,17 @@ void cast_rays(SDL_Renderer* renderer,struct World* world) {
             }
         }
 
-        //skip drawing wall stage if no wall has been hit
+        //skip drawing stage
         if (wall_hit == NULL) {
-            SDL_SetRenderDrawColor(renderer,0,0,64,255);
-            SDL_RenderDrawLine(renderer,i,0,i,HEIGHT/2);
-            SDL_SetRenderDrawColor(renderer,64,64,64,255);
-            SDL_RenderDrawLine(renderer,i,HEIGHT/2.0f+1,i,HEIGHT-1);
             continue;
         };
         //create pixel boundaries for column
-        float dot = ray.x*view.x + ray.y*view.y;
-        float cos_angle = dot / (get_length(ray) * get_length(view));
+        float cos_angle = (ray.x*view.x + ray.y*view.y) / (get_length(ray) * get_length(view));
         const v2_f column = get_column(wall_hit_distance*cos_angle);
 
         //draw column with corresponding wall color
-        SDL_SetRenderDrawColor(renderer,0,0,64,255);
-        SDL_RenderDrawLine(renderer,i,0,i,column.x);
         SDL_SetRenderDrawColor(renderer,wall_hit->r,wall_hit->g,wall_hit->b,255);
         SDL_RenderDrawLine(renderer,i,column.y,i,column.x);
-        SDL_SetRenderDrawColor(renderer,64,64,64,255);
-        SDL_RenderDrawLine(renderer,i,column.y,i,HEIGHT-1);
 
     }   
 }
@@ -146,23 +143,23 @@ int main() {
                 switch (e.key.keysym.sym)
                 {
                 case SDLK_w:
-                    pos.x = pos.x + view.x;
-                    pos.y = pos.y + view.y;
+                    pos.x += view.x;
+                    pos.y += view.y;
                     break;
                 case SDLK_s:
-                    pos.x = pos.x - view.x;
-                    pos.y = pos.y - view.y;
+                    pos.x -= view.x;
+                    pos.y -= view.y;
                     break;
                 case SDLK_a:
-                    pos.x = pos.x - view.y;
-                    pos.y = pos.y + view.x;
+                    pos.x -= view.y;
+                    pos.y += view.x;
                     break;
                 case SDLK_d:
-                    pos.x = pos.x + view.y;
-                    pos.y = pos.y - view.x;
+                    pos.x += view.y;
+                    pos.y -= view.x;
                     break;
                 case SDLK_p:
-                    pause = pause ? 0 : 1;
+                    pause ^= 1; //flip the pause flag
                 default :
                     break;
                 }
@@ -182,10 +179,15 @@ int main() {
         
         SDL_RenderClear( renderer );
         //rendering
+        SDL_SetRenderDrawColor(renderer,SKY_COLOR);
+        SDL_RenderFillRect(renderer,&((SDL_Rect) {0,0,WIDTH,HEIGHT/2}));
+        SDL_SetRenderDrawColor(renderer,FLOOR_COLOR);
+        SDL_RenderFillRect(renderer,&((SDL_Rect) {0,HEIGHT/2,WIDTH,(HEIGHT/2)}));
+
         cast_rays(renderer,world);
         if (pause) {
             SDL_SetRenderDrawColor( renderer, 0,0,0, 100 );
-            SDL_Rect whole_screen = {0,0,WIDTH,HEIGHT};
+            const SDL_Rect whole_screen = {0,0,WIDTH,HEIGHT};
             SDL_RenderFillRect(renderer,&whole_screen);
         }
         SDL_RenderPresent( renderer );
@@ -193,6 +195,7 @@ int main() {
         dticks = SDL_GetTicks() - ticks; // total ticks the frame took sofar
         dticks = 1000/ FPS - dticks;    // ticks that are left to wait for next frame
         if (dticks >0) {
+            printf("%d\n",dticks);
             SDL_Delay(dticks);
         }
 
@@ -201,6 +204,7 @@ int main() {
     //free data
     free(world->walls);
     free(world);
+    SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
     return 0;
