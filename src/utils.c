@@ -57,22 +57,7 @@ float check_hit(v2_f ray, v2_f w1, v2_f w2) {
     float hit_y;
 
     if (w1.x==w2.x) {
-        if (ray.x == 0) { //case is very rare
-            printf("wow this case should happen actually\n");
-            if (0 != w1.x) {    // case should never happen
-                return -1.0f;
-            }
-            // fc is used to check that the wall is in front of the player
-            v2_f fc     = add_vectors(pos, set_length(RENDER_DIST,ray));
-            float dist  = get_distance(w1,pos);
-            float dist2 = get_distance(w1,fc);
-            //dist <= RENDER_DIST && dist2 < RENDER_DIST <=> (fabs(dist+dist2) < RENDER_DIST+0.01)
-            if (dist <= RENDER_DIST && dist2 < RENDER_DIST) return dist;
-            dist        = get_distance(w2,pos);
-            dist2       = get_distance(w2,fc);
-            if (dist <= RENDER_DIST && dist2 < RENDER_DIST) return dist;
-            return -1.0f;
-        }
+        
         hit_x               = w1.x;
         hit_y               = a_ray * hit_x + b_ray;
     } else {
