@@ -4,7 +4,6 @@
 #include    <string.h>
 #define SDL_MAIN_HANDLED
 #include "SDL2/SDL.h"
-
 #define HEIGHT  560
 #define WIDTH   1000
 
