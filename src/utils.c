@@ -9,8 +9,7 @@ typedef struct v2_f{
     float y;
 } v2_f;
 
-v2_f view;
-v2_f pos;
+
 
 //we skip the sqrt stage because its expensive and only needed if wall hit
 static inline float get_distance_squared(v2_f v1, v2_f v2) {
@@ -36,17 +35,17 @@ static inline v2_f rotate(float rad, v2_f vector) {
 }
 
 // returns -1 if not hit, else returns distance to hit
-float check_hit(v2_f ray, v2_f w1, v2_f w2) {
+float check_hit(v2_f ray,v2_f pos, v2_f w1, v2_f w2) {
 
     if (ray.x < EPSILON) {
-        if (fabs(w2.x-pos.x) < EPSILON && fabs(w1.x-pos.x) < EPSILON) {
+        if (w1.x == w2.x && fabs(w2.x-pos.x) < EPSILON) {
             return -1;
         }
         ray.x += EPSILON;
     }
     const float a_ray     = ray.y / ray.x ;
     const float b_ray     = pos.y - a_ray * pos.x;
-    // if wall is parralel, it wont hit
+    // if wall is parallel, it won't hit
     const int v1_under    = w1.y < (w1.x * a_ray + b_ray);
     const int v2_under    = w2.y < (w2.x* a_ray + b_ray);
     if (v1_under == v2_under) return -1;

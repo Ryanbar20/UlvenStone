@@ -59,7 +59,7 @@ struct World* load_world() {
         if (buffer[0] == 'S') {
             found_spawn = 1;
             if (sscanf(buffer, "%c %d %d",&t,&x1,&y1) != 3) {
-                printf("Parse error on: %s\n", buffer);
+                fprintf(stderr,"Parse error on: %s\n", buffer);
                 free(walls);
                 return NULL;
             }
@@ -69,12 +69,12 @@ struct World* load_world() {
         }
 
         if (sscanf(buffer, "%d %d %d %d %d %d %d",&x1,&y1,&x2,&y2,&r,&g,&b) != 7) {
-            printf("Parse error on: %s\n", buffer);
+            fprintf(stderr,"Parse error on: %s\n", buffer);
             free(walls);
             return NULL;
         }
         if (!found_spawn) {
-            printf("Parse error on: %s\n Spawn should be specified before any walls", buffer);
+            fprintf(stderr,"Parse error on: %s\n Spawn should be specified before any walls", buffer);
             free(walls);
             return NULL;
         }
@@ -83,7 +83,6 @@ struct World* load_world() {
         count++; 
     }
 
-    printf("%d\n",count);
     struct Wall* temp = (struct Wall*)realloc(walls, count*sizeof(struct Wall));
     if (temp == NULL) {
         printf("Reallocation failed!\n");
