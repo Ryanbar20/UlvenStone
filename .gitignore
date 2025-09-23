@@ -3,3 +3,7 @@ ulvenstone.exe
 SDL2.dll
 test/testprogram.exe
 temp.txt
+/.idea/editor.xml
+/.idea/vcs.xml
+/.idea/misc.xml
+/.idea/.gitignore
