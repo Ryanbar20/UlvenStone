@@ -1,5 +1,5 @@
-#include    <stdio.h>
 #include    <math.h>
+#include    <stdio.h>
 #include    <stdlib.h>
 #include    <string.h>
 #define SDL_MAIN_HANDLED
@@ -17,11 +17,17 @@
 #define EDITOR_MODE 0
 #define QUIT_MODE 3
 
+
+#define BUTTON_WIDTH 200
+#define BUTTON_HEIGHT 100
+
 #include "utils.c"
 #include "world_loader.c"
-#include "game.c"
 #include "editor.c"
+#include "game.c"
 #include "menu.c"
+
+
 
 
 /*
@@ -78,7 +84,7 @@ int main() {
         } else if (mode == EDITOR_MODE) {
             mode = editor_loop(renderer,window,world);
         } else if (mode == MENU_MODE) {
-            mode = menu_loop(renderer,window);
+            mode = menu_loop(renderer);
         }
     }
 

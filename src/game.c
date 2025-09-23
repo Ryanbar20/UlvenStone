@@ -14,6 +14,8 @@ v2_f pos;
 
 #define SKY_COLOR 0,0,64,255
 #define FLOOR_COLOR 64,64,64,255
+#define GAME_MENU (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - BUTTON_HEIGHT / 2, BUTTON_WIDTH, BUTTON_HEIGHT
+
 
 v2_f get_column(float distance) {
     int y_lo = (int) (HEIGHT/2.0f - ((PLAYER_HEIGHT/distance) * (HEIGHT / CAM_HEIGHT)) );
@@ -23,11 +25,10 @@ v2_f get_column(float distance) {
     return (v2_f) {HEIGHT-y_hi,HEIGHT-y_lo};
 }
 
-static inline v2_f get_ray(int screen_index,v2_f perpendicular) {
+static v2_f get_ray(int screen_index,v2_f perpendicular) {
     const float dw = (CAM_WIDTH / 2.0f - ((CAM_WIDTH * screen_index)/WIDTH));
     return set_length(1,(v2_f) {dw*perpendicular.x + SCREEN_DIST*  view.x,dw*perpendicular.y + SCREEN_DIST* view.y});
 }
-
 
 
 void cast_rays(SDL_Renderer* renderer,struct World* world) {
@@ -65,6 +66,13 @@ void cast_rays(SDL_Renderer* renderer,struct World* world) {
 }
 
 
+
+int handle_game_button_press(int x, int y) {
+    int menu[4] = {GAME_MENU};
+    return (x >= menu[0] && y >= menu[1] && x <= menu[0]+menu[2] && y <= menu[1]+menu[3]);
+}
+
+
 int game_loop(SDL_Renderer* renderer, SDL_Window* window, struct World* world) {
 
     view    = set_length(1, (v2_f) {0,1});
@@ -84,7 +92,20 @@ int game_loop(SDL_Renderer* renderer, SDL_Window* window, struct World* world) {
             if (e.type == SDL_QUIT) {
                 return QUIT_MODE;
             }
-            if (e.type == SDL_KEYDOWN) {
+            if (e.type == SDL_MOUSEBUTTONDOWN) {
+                switch (e.button.button) {
+                    case SDL_BUTTON_LEFT:
+                        if (pause) {
+                            SDL_GetMouseState(&mouse_x,&mouse_y);
+                            if (handle_game_button_press(mouse_x, mouse_y)) return MENU_MODE;
+                            break;
+                        }
+
+                    default:
+                        break;
+                }
+            }
+            else if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym)
                 {
                 case SDLK_w:
@@ -134,6 +155,10 @@ int game_loop(SDL_Renderer* renderer, SDL_Window* window, struct World* world) {
             SDL_SetRenderDrawColor( renderer, 0,0,0, 100 );
             const SDL_Rect whole_screen = {0,0,WIDTH,HEIGHT};
             SDL_RenderFillRect(renderer,&whole_screen);
+            SDL_Rect rect = {GAME_MENU};
+            SDL_SetRenderDrawColor( renderer,0,0,255,255);
+            SDL_RenderFillRect(renderer,&rect);
+
         }
         SDL_RenderPresent( renderer );
 
