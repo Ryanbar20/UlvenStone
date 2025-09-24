@@ -127,7 +127,7 @@ int game_loop(const struct World* world) {
                         }
                         break;
                     case SDLK_a:
-                        ray.x = view.y; ray.y = -view.x;
+                        ray.x = -view.y; ray.y = view.x;
                         for (int i =0; i<world->wall_amount; i++) {
                             if (check_hit(ray,pos,world->walls[i].v1,world->walls[i].v2,1) >0) {
                                 x = 1;
@@ -140,7 +140,7 @@ int game_loop(const struct World* world) {
                         }
                         break;
                     case SDLK_d:
-                        ray.x -= view.y; ray.y = view.x;
+                        ray.x = view.y; ray.y = -view.x;
                         for (int i =0; i<world->wall_amount; i++) {
                             if (check_hit(ray,pos,world->walls[i].v1,world->walls[i].v2,1) >0) {
                                 x = 1;
