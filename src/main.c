@@ -4,9 +4,13 @@
 #include    <string.h>
 #define SDL_MAIN_HANDLED
 #include "SDL2/SDL.h"
+#include "SDL2/SDL_image.h"
 #define HEIGHT  560
 #define WIDTH   1000
 
+SDL_Window *window = NULL;
+SDL_Renderer *renderer = NULL;
+SDL_Surface* surface = NULL;
 
 #define RENDER_DIST 100
 #define FPS 30.0f
@@ -38,30 +42,38 @@
 
 //function that initializes an SDL window
 //  also checks for correct initialization
-SDL_Window* createWindow() {
-    SDL_Window* window = SDL_CreateWindow(
+void createWindow() {
+    window = SDL_CreateWindow(
         "UlvenStone",
         SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED,WIDTH,HEIGHT,0
     );
     if (window == NULL) {
         fprintf(stderr, "An error occured when creating the window: %s\n", SDL_GetError());
+        exit(1);
     }
-    return window;
 }
 
 //function that initializes an SDL renderer
 //  also checks for correct initialization
-SDL_Renderer* createRenderer(SDL_Window* window) {
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+void createRenderer(SDL_Window* window) {
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (renderer == NULL) {
         fprintf(stderr, "An error occured when initializing the renderer: %s\n", SDL_GetError());
+        exit(1);
     }
     if (SDL_SetRenderDrawBlendMode(renderer,SDL_BLENDMODE_BLEND) != 0) {
         fprintf(stderr, "An error occured when initializing the renderer: %s\n", SDL_GetError());
-    }   
-    return renderer;
+        exit(1);
+    }
 }
-
+void init_images() {
+    int imgflags = IMG_INIT_PNG;
+    if (!(IMG_Init(imgflags) & imgflags)) {
+        fprintf(stderr, "Couldnt initialize image loader: %s\n",IMG_GetError());
+        exit(1);
+    }
+    surface =  SDL_GetWindowSurface( window );
+}
 
 
 
@@ -70,18 +82,22 @@ SDL_Renderer* createRenderer(SDL_Window* window) {
 
 //function that handles the main program loop, inputs and cleanup after closing.
 int main() {
-
+    printf("Compiled with SDL version %d.%d.%d\n",
+               SDL_MAJOR_VERSION,
+               SDL_MINOR_VERSION,
+               SDL_PATCHLEVEL);
     SDL_Init(SDL_INIT_VIDEO);
-    SDL_Window *window =        createWindow();
-    SDL_Renderer *renderer =    createRenderer(window);
+    createWindow();
+    createRenderer(window);
+    init_images();
     struct World* world = load_world();
     int mode = MENU_MODE;
 
     while (mode != QUIT_MODE) {
         if (mode == GAME_MODE) {
-            mode = game_loop(renderer,window,world);
+            mode = game_loop(world);
         } else if (mode == EDITOR_MODE) {
-            mode = editor_loop(renderer,window,world);
+            mode = editor_loop(world);
         } else if (mode == MENU_MODE) {
             mode = menu_loop(renderer);
         }
@@ -93,6 +109,7 @@ int main() {
     free(world);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    IMG_Quit();
     SDL_Quit();
     return 0;
 }

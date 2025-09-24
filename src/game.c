@@ -31,7 +31,7 @@ static v2_f get_ray(int screen_index,v2_f perpendicular) {
 }
 
 
-void cast_rays(SDL_Renderer* renderer,struct World* world) {
+void cast_rays(struct World* world) {
     //declare loop variables
     struct Wall* wall_hit;  float wall_hit_distance;    v2_f ray;
     //constant static variables
@@ -73,7 +73,7 @@ int handle_game_button_press(int x, int y) {
 }
 
 
-int game_loop(SDL_Renderer* renderer, SDL_Window* window, struct World* world) {
+int game_loop(struct World* world) {
 
     view    = set_length(1, (v2_f) {0,1});
     pos     = world->spawn;
@@ -89,68 +89,59 @@ int game_loop(SDL_Renderer* renderer, SDL_Window* window, struct World* world) {
         //main game loop
         ticks = SDL_GetTicks();
         while(SDL_PollEvent(&e) !=0){
-            if (e.type == SDL_QUIT) {
-                return QUIT_MODE;
-            }
-            if (e.type == SDL_MOUSEBUTTONDOWN) {
-                switch (e.button.button) {
-                    case SDL_BUTTON_LEFT:
-                        if (pause) {
-                            SDL_GetMouseState(&mouse_x,&mouse_y);
-                            if (handle_game_button_press(mouse_x, mouse_y)) return MENU_MODE;
-                            break;
-                        }
 
-                    default:
+            if (e.type == SDL_QUIT) return QUIT_MODE;
+            if (e.type == SDL_MOUSEBUTTONDOWN) {
+                if (e.button.button == SDL_BUTTON_LEFT && pause) {
+                    SDL_GetMouseState(&mouse_x,&mouse_y);
+                    if (handle_game_button_press(mouse_x, mouse_y)) return MENU_MODE;
+                }
+            }
+            if (e.type == SDL_KEYDOWN) {
+                switch (e.key.keysym.sym)
+                {
+                    case SDLK_w:
+                        pos.x += view.x;
+                        pos.y += view.y;
+                        break;
+                    case SDLK_s:
+                        pos.x -= view.x;
+                        pos.y -= view.y;
+                        break;
+                    case SDLK_a:
+                        pos.x -= view.y;
+                        pos.y += view.x;
+                        break;
+                    case SDLK_d:
+                        pos.x += view.y;
+                        pos.y -= view.x;
+                        break;
+                    case SDLK_p:
+                        pause ^= 1; //flip the pause flag
+                    default :
                         break;
                 }
             }
-            else if (e.type == SDL_KEYDOWN) {
-                switch (e.key.keysym.sym)
-                {
-                case SDLK_w:
-                    pos.x += view.x;
-                    pos.y += view.y;
-                    break;
-                case SDLK_s:
-                    pos.x -= view.x;
-                    pos.y -= view.y;
-                    break;
-                case SDLK_a:
-                    pos.x -= view.y;
-                    pos.y += view.x;
-                    break;
-                case SDLK_d:
-                    pos.x += view.y;
-                    pos.y -= view.x;
-                    break;
-                case SDLK_p:
-                    pause ^= 1; //flip the pause flag
-                default :
-                    break;
-                }
-            }
-            if (!pause) {
-                SDL_GetMouseState(&mouse_x,&mouse_y);
-                if (mouse_x < (WIDTH/2)) {
-                    view = rotate(0.15,view);
-                } else if (mouse_x > (WIDTH/2)) {
-                    view = rotate(-0.15,view);
-                }
-                SDL_WarpMouseInWindow(window,WIDTH/2,HEIGHT/2);
-            }
-
-
         }
+        if (!pause) {
+            SDL_GetMouseState(&mouse_x,&mouse_y);
+            if (mouse_x < WIDTH/2) {
+                view =  rotate(0.15,view);
+            } else if (mouse_x > WIDTH/2) {
+                view =  rotate(-0.15,view);
+            }
+            SDL_WarpMouseInWindow(window,WIDTH/2,HEIGHT/2);
+        }
+
 
         SDL_RenderClear( renderer );
         //rendering
         SDL_SetRenderDrawColor(renderer,SKY_COLOR);
-        SDL_RenderFillRect(renderer,&((SDL_Rect) {0,0,WIDTH,HEIGHT/2}));
+        SDL_RenderFillRect(renderer, &((SDL_Rect) {0,0,WIDTH,HEIGHT/2}));
         SDL_SetRenderDrawColor(renderer,FLOOR_COLOR);
-        SDL_RenderFillRect(renderer,&((SDL_Rect) {0,HEIGHT/2,WIDTH,(HEIGHT/2)}));
+        SDL_RenderFillRect(renderer, &((SDL_Rect) {0,HEIGHT/2,WIDTH,(HEIGHT/2)}));
 
-        cast_rays(renderer,world);
+        cast_rays(world);
         if (pause) {
             SDL_SetRenderDrawColor( renderer, 0,0,0, 100 );
             const SDL_Rect whole_screen = {0,0,WIDTH,HEIGHT};
