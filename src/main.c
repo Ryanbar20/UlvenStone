@@ -10,10 +10,10 @@
 #define HEIGHT  560
 #define WIDTH   1000
 
-SDL_Window *window = NULL;
-SDL_Renderer *renderer = NULL;
-SDL_Surface* surface = NULL;
-SDL_Texture* spriteSheet = NULL;
+SDL_Window *window          = NULL;
+SDL_Renderer *renderer      = NULL;
+SDL_Surface* surface        = NULL;
+SDL_Texture* spriteSheet    = NULL;
 #define RENDER_DIST 100
 #define FPS 30.0f
 
@@ -28,9 +28,9 @@ SDL_Texture* spriteSheet = NULL;
 #define FONT_SIZE 32
 
 
-const int game_letters[4] = {6,0,12,4};
+const int game_letters[4]   = {6,0,12,4};
 const int editor_letters[6] = {4,3,8,19,14,17};
-const int menu_letters[4] = {12,4,13,20};
+const int menu_letters[4]   = {12,4,13,20};
 
 
 #include "utils.c"
@@ -106,16 +106,12 @@ int main() {
     spriteSheet = SDL_CreateTextureFromSurface(renderer,surface);
 
     struct World* world = load_world();
-    int mode = MENU_MODE;
+    int mode            = MENU_MODE;
 
     while (mode != QUIT_MODE) {
-        if (mode == GAME_MODE) {
-            mode = game_loop(world);
-        } else if (mode == EDITOR_MODE) {
-            mode = editor_loop(world);
-        } else if (mode == MENU_MODE) {
-            mode = menu_loop(renderer);
-        }
+        if (mode == GAME_MODE)      {mode = game_loop(world);   continue;}
+        if (mode == EDITOR_MODE)    {mode = editor_loop(world); continue;}
+        if (mode == MENU_MODE)      {mode = menu_loop(renderer);}
     }
 
 

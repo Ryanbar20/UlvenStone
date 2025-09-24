@@ -125,11 +125,8 @@ int game_loop(struct World* world) {
         }
         if (!pause) {
             SDL_GetMouseState(&mouse_x,&mouse_y);
-            if (mouse_x < WIDTH/2) {
-                view =  rotate(0.15,view);
-            } else if (mouse_x > WIDTH/2) {
-                view =  rotate(-0.15,view);
-            }
+            if (mouse_x < WIDTH/2)      {view =  rotate(0.15,view);}
+            else if (mouse_x > WIDTH/2) {view =  rotate(-0.15,view);}
             SDL_WarpMouseInWindow(window,WIDTH/2,HEIGHT/2);
         }
 

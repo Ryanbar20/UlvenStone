@@ -27,22 +27,20 @@ int menu_loop(SDL_Renderer* renderer) {
         //main game loop
         ticks = SDL_GetTicks();
         while(SDL_PollEvent(&e) !=0) {
-            if (e.type == SDL_QUIT) {
-                return QUIT_MODE;
-            }
+            if (e.type == SDL_QUIT) return QUIT_MODE;
             //check if any button was clicked
-            int condition = e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT;
+            int condition   = e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT;
             SDL_GetMouseState(&mouse_x,&mouse_y);
-            mouse_x = handle_menu_button_press(mouse_x, mouse_y);
-            if (condition && mouse_x == GAME_MODE) return GAME_MODE;
-            if (condition && mouse_x == EDITOR_MODE) return EDITOR_MODE;
+            mouse_x         = handle_menu_button_press(mouse_x, mouse_y);
+            if (condition && mouse_x == GAME_MODE)      return GAME_MODE;
+            if (condition && mouse_x == EDITOR_MODE)    return EDITOR_MODE;
         }
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
         //draw buttons
         SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-        SDL_Rect editor = {EDITOR_RECT};
-        SDL_Rect game = {GAME_RECT};
+        SDL_Rect editor     = {EDITOR_RECT};
+        SDL_Rect game       = {GAME_RECT};
         SDL_RenderFillRect(renderer,&game);
         SDL_RenderFillRect(renderer, &editor);
         //draw button text
