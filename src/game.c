@@ -63,6 +63,18 @@ void cast_rays(const struct World* world) {
     }
 }
 
+void move_if_possible(v2_f* pos, const v2_f movement, const struct World* world) {
+    for (int i=0; i<world->wall_amount; i++) {
+        const struct Wall w = world->walls[i];
+        if (check_hit(movement,*pos,w.v1,w.v2,1) >0) {
+            return;
+        }
+    }
+    pos->x += movement.x;
+    pos->y += movement.y;
+}
+
+
 
 
 int handle_game_button_press(int x, int y) {
@@ -97,60 +109,19 @@ int game_loop(const struct World* world) {
                 if (handle_game_button_press(mouse_x, mouse_y)) return MENU_MODE;
             }
             if (e.type == SDL_KEYDOWN) {
-                int x       =0;
-                v2_f ray    = view;
                 switch (e.key.keysym.sym)
                 {
                     case SDLK_w:
-                        for (int i =0; i<world->wall_amount; i++) {
-                            if (check_hit(ray,pos,world->walls[i].v1,world->walls[i].v2,1) >0) {
-                                x = 1;
-                                break;
-                            }
-                        }
-                        if (!x) {
-                            pos.x += ray.x;
-                            pos.y += ray.y;
-                        }
+                        move_if_possible(&pos,(v2_f) {view.x,view.y}, world);
                         break;
                     case SDLK_s:
-                        ray.x *= -1; ray.y *= -1;
-                        for (int i =0; i<world->wall_amount; i++) {
-                            if (check_hit(ray,pos,world->walls[i].v1,world->walls[i].v2,1) >0) {
-                                x = 1;
-                                break;
-                            }
-                        }
-                        if (!x) {
-                            pos.x += ray.x;
-                            pos.y += ray.y;
-                        }
+                        move_if_possible(&pos,(v2_f) {-view.x,-view.y}, world);
                         break;
                     case SDLK_a:
-                        ray.x = -view.y; ray.y = view.x;
-                        for (int i =0; i<world->wall_amount; i++) {
-                            if (check_hit(ray,pos,world->walls[i].v1,world->walls[i].v2,1) >0) {
-                                x = 1;
-                                break;
-                            }
-                        }
-                        if (!x) {
-                            pos.x += ray.x;
-                            pos.y += ray.y;
-                        }
+                        move_if_possible(&pos,(v2_f) {-view.y,view.x}, world);
                         break;
                     case SDLK_d:
-                        ray.x = view.y; ray.y = -view.x;
-                        for (int i =0; i<world->wall_amount; i++) {
-                            if (check_hit(ray,pos,world->walls[i].v1,world->walls[i].v2,1) >0) {
-                                x = 1;
-                                break;
-                            }
-                        }
-                        if (!x) {
-                            pos.x += ray.x;
-                            pos.y += ray.y;
-                        }
+                        move_if_possible(&pos,(v2_f) {view.y,-view.x}, world);
                         break;
                     case SDLK_p:
                         pause ^= 1; //flip the pause flag
