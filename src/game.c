@@ -1,10 +1,10 @@
 
 
-#define WALL_HEIGHT 100.0f
-#define PLAYER_HEIGHT 50.0f
-#define CAM_HEIGHT 50.0f
-#define SCREEN_DIST 1   // corresponds to FOV (higher means less FOV)
-#define CAM_WIDTH 1.5f  // corresponds to FOV (higher means more FOV) (currently around 85deg)
+#define WALL_HEIGHT     100.0f
+#define PLAYER_HEIGHT   50.0f
+#define CAM_HEIGHT      50.0f
+#define SCREEN_DIST     1   // corresponds to FOV (higher means less FOV)
+#define CAM_WIDTH       1.5f  // corresponds to FOV (higher means more FOV) (currently around 85deg)
 
 
 
@@ -12,51 +12,48 @@
 v2_f view;
 v2_f pos;
 
-#define SKY_COLOR 0,0,64,255
+#define SKY_COLOR   0,0,64,255
 #define FLOOR_COLOR 64,64,64,255
-#define GAME_MENU (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - BUTTON_HEIGHT / 2, BUTTON_WIDTH, BUTTON_HEIGHT
+#define GAME_MENU   (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - BUTTON_HEIGHT / 2, BUTTON_WIDTH, BUTTON_HEIGHT
 
 
 v2_f get_column(float distance) {
-    int y_lo = (int) (HEIGHT/2.0f - ((PLAYER_HEIGHT/distance) * (HEIGHT / CAM_HEIGHT)) );
-    int y_hi = (int) (HEIGHT/2.0f + (((WALL_HEIGHT-PLAYER_HEIGHT)/distance * (HEIGHT / CAM_HEIGHT))));
-    y_lo = y_lo < 0 ? 0 : y_lo;
-    y_hi = y_hi >= HEIGHT ? HEIGHT-1 : y_hi;
-    return (v2_f) {HEIGHT-y_hi,HEIGHT-y_lo};
+    int y_lo    = (int) (HEIGHT/2.0f - ((PLAYER_HEIGHT/distance) * (HEIGHT / CAM_HEIGHT)) );
+    int y_hi    = (int) (HEIGHT/2.0f + (((WALL_HEIGHT-PLAYER_HEIGHT)/distance * (HEIGHT / CAM_HEIGHT))));
+    y_lo        = y_lo < 0 ? 0 : y_lo;
+    y_hi        = y_hi >= HEIGHT ? HEIGHT-1 : y_hi;
+    return      (v2_f) {HEIGHT-y_hi,HEIGHT-y_lo};
 }
 
-static v2_f get_ray(int screen_index,v2_f perpendicular) {
+static v2_f get_ray(int screen_index,v2_f perp) {
     const float dw = (CAM_WIDTH / 2.0f - ((CAM_WIDTH * screen_index)/WIDTH));
-    return set_length(1,(v2_f) {dw*perpendicular.x + SCREEN_DIST*  view.x,dw*perpendicular.y + SCREEN_DIST* view.y});
+    return set_length(1,(v2_f) {dw*perp.x + SCREEN_DIST*  view.x,dw*perp.y + SCREEN_DIST* view.y});
 }
 
 
 void cast_rays(struct World* world) {
-    //declare loop variables
-    struct Wall* wall_hit;  float wall_hit_distance;    v2_f ray;
-    //constant static variables
-    const v2_f perpendicular = rotate(DEG_TO_RAD(90),view);
+    const v2_f perpendicular        = rotate(DEG_TO_RAD(90),view);
     for (int i =0; i<WIDTH; i++) {
         //assign loop variables
-        wall_hit = NULL;    wall_hit_distance = RENDER_DIST + 10;   ray = get_ray(i,perpendicular);
+        struct Wall *wall_hit       = NULL;
+        float wall_hit_distance     = RENDER_DIST + 10;
+        v2_f ray                    = get_ray(i, perpendicular);
 
         //determine wall to draw, if any
         for (int j=0; j<world->wall_amount; j++) {
             //variables for this iteration
             const struct Wall w = world->walls[j];
-            const float d = check_hit(ray,pos,w.v1, w.v2);
+            const float d       = check_hit(ray,pos,w.v1, w.v2);
             if (d >= 0 && d < wall_hit_distance) {
-                wall_hit = world->walls + j;    wall_hit_distance = d;
+                wall_hit        = world->walls + j;    wall_hit_distance = d;
             }
         }
 
         //skip drawing stage
-        if (wall_hit == NULL) {
-            continue;
-        };
+        if (wall_hit == NULL) continue;
         //create pixel boundaries for column
-        float cos_angle = (ray.x*view.x + ray.y*view.y) / (get_length(ray) * get_length(view));
-        const v2_f column = get_column(wall_hit_distance*cos_angle);
+        float cos_angle     = (ray.x*view.x + ray.y*view.y) / (get_length(ray) * get_length(view));
+        const v2_f column   = get_column(wall_hit_distance*cos_angle);
 
         //draw column with corresponding wall color
         SDL_SetRenderDrawColor(renderer,wall_hit->r,wall_hit->g,wall_hit->b,255);
@@ -75,9 +72,8 @@ int handle_game_button_press(int x, int y) {
 
 int game_loop(struct World* world) {
 
-    view    = set_length(1, (v2_f) {0,1});
-    pos     = world->spawn;
-    printf("%f %f\n",pos.x,pos.y);
+    view        = set_length(1, (v2_f) {0,1});
+    pos         = world->spawn;
     SDL_Event e;
     int quit    = 0;
     int mouse_x = WIDTH/2;
@@ -87,15 +83,13 @@ int game_loop(struct World* world) {
     int dticks  = 0;
     while (!quit){
         //main game loop
-        ticks = SDL_GetTicks();
+        ticks   = SDL_GetTicks();
         while(SDL_PollEvent(&e) !=0){
 
             if (e.type == SDL_QUIT) return QUIT_MODE;
-            if (e.type == SDL_MOUSEBUTTONDOWN) {
-                if (e.button.button == SDL_BUTTON_LEFT && pause) {
-                    SDL_GetMouseState(&mouse_x,&mouse_y);
-                    if (handle_game_button_press(mouse_x, mouse_y)) return MENU_MODE;
-                }
+            if (e.type == SDL_MOUSEBUTTONDOWN && e.mouse.button.button == SDL_BUTTON_LEFT && pause;) {
+                SDL_GetMouseState(&mouse_x,&mouse_y);
+                if (handle_game_button_press(mouse_x, mouse_y)) return MENU_MODE;
             }
             if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym)
@@ -125,7 +119,7 @@ int game_loop(struct World* world) {
         }
         if (!pause) {
             SDL_GetMouseState(&mouse_x,&mouse_y);
-            if (mouse_x < WIDTH/2)      {view =  rotate(0.15,view);}
+            if      (mouse_x < WIDTH/2) {view =  rotate(0.15,view);}
             else if (mouse_x > WIDTH/2) {view =  rotate(-0.15,view);}
             SDL_WarpMouseInWindow(window,WIDTH/2,HEIGHT/2);
         }

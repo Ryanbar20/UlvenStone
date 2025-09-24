@@ -50,7 +50,7 @@ float check_hit(v2_f ray,v2_f pos, v2_f w1, v2_f w2) {
     const int v2_under    = w2.y < (w2.x* a_ray + b_ray);
     if (v1_under == v2_under) return -1;
     
-    float hit_x = w1.x;
+    float hit_x             = w1.x;
     if (w1.x!=w2.x) {
         const float a_wall  = (w1.y-w2.y) / (w1.x-w2.x);
         const float b_wall  = w1.y - a_wall * w1.x;
@@ -66,9 +66,9 @@ float check_hit(v2_f ray,v2_f pos, v2_f w1, v2_f w2) {
 }
 
 v2_f get_sprite_coordinate(int sprite_id) {
-    int y = sprite_id / 8;
-    int x = sprite_id % 8;
-    return (v2_f) {x*8,y*8};
+    int y   = sprite_id / 8;
+    int x   = sprite_id % 8;
+    return  (v2_f) {x*8,y*8};
 }
 
 void render_button(const int* letters,int letter_amount,const SDL_Rect* button) {

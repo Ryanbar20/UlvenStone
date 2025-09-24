@@ -12,18 +12,19 @@ SDL_Window *window          = NULL;
 SDL_Renderer *renderer      = NULL;
 SDL_Surface* surface        = NULL;
 SDL_Texture* spriteSheet    = NULL;
-#define RENDER_DIST 100
-#define FPS 30.0f
 
-#define MENU_MODE 2
-#define GAME_MODE 1
-#define EDITOR_MODE 0
-#define QUIT_MODE 3
+#define RENDER_DIST     100
+#define FPS             30.0f
+
+#define MENU_MODE       2
+#define GAME_MODE       1
+#define EDITOR_MODE     0
+#define QUIT_MODE       3
 
 
-#define BUTTON_WIDTH 200
-#define BUTTON_HEIGHT 100
-#define FONT_SIZE 32
+#define BUTTON_WIDTH    200
+#define BUTTON_HEIGHT   100
+#define FONT_SIZE       32
 
 
 const int game_letters[4]   = {6,0,12,4};
@@ -86,17 +87,8 @@ void init_images() {
     }
 }
 
-
-
-
-
-
 //function that handles the main program loop, inputs and cleanup after closing.
 int main() {
-    printf("Compiled with SDL version %d.%d.%d\n",
-               SDL_MAJOR_VERSION,
-               SDL_MINOR_VERSION,
-               SDL_PATCHLEVEL);
     SDL_Init(SDL_INIT_VIDEO);
     createWindow();
     createRenderer(window);
@@ -111,7 +103,6 @@ int main() {
         if (mode == EDITOR_MODE)    {mode = editor_loop(world); continue;}
         if (mode == MENU_MODE)      {mode = menu_loop(renderer);}
     }
-
 
     //free data
     free(world->walls);
