@@ -1,12 +1,12 @@
 
 
 
-#define GAME_OFFSET 200
-#define QUIT_RECT (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) - GAME_OFFSET, BUTTON_WIDTH, BUTTON_HEIGHT
-#define EDITOR_RECT (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - BUTTON_HEIGHT / 2, BUTTON_WIDTH, BUTTON_HEIGHT
-#define GAME_RECT (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) + GAME_OFFSET, BUTTON_WIDTH, BUTTON_HEIGHT
+#define GAME_OFFSET     200
+#define QUIT_RECT       (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) - GAME_OFFSET,   BUTTON_WIDTH, BUTTON_HEIGHT
+#define EDITOR_RECT     (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - (BUTTON_HEIGHT / 2),                 BUTTON_WIDTH, BUTTON_HEIGHT
+#define GAME_RECT       (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) + GAME_OFFSET,   BUTTON_WIDTH, BUTTON_HEIGHT
 
-int handle_menu_button_press(int x, int y) {
+int handle_menu_button_press(int x,int y) {
     const int editor[4] = {EDITOR_RECT};
     const int game[4] = {GAME_RECT};
     const int quit[4] = {QUIT_RECT};
@@ -61,9 +61,7 @@ int menu_loop(SDL_Renderer* renderer) {
 
         dticks = SDL_GetTicks() - ticks;
         dticks = 1000/ FPS - dticks;
-        if (dticks >0) {
-            SDL_Delay(dticks);
-        }
+        if (dticks >0) SDL_Delay(dticks);
     }
     return QUIT_MODE;
 

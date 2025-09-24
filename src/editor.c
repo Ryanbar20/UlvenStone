@@ -2,7 +2,7 @@
 
 
 
-int editor_loop(struct World* world) {
+int editor_loop(const struct World* world) {
     //TODO
     return QUIT_MODE;
 }
