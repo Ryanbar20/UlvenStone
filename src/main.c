@@ -3,8 +3,6 @@
 #include    <stdlib.h>
 #include    <string.h>
 #define SDL_MAIN_HANDLED
-#include <time.h>
-
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #define HEIGHT  560
@@ -31,7 +29,7 @@ SDL_Texture* spriteSheet    = NULL;
 const int game_letters[4]   = {6,0,12,4};
 const int editor_letters[6] = {4,3,8,19,14,17};
 const int menu_letters[4]   = {12,4,13,20};
-
+const int quit_letters[4]   = {16,20,8,19};
 
 #include "utils.c"
 #include "world_loader.c"
