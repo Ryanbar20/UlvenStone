@@ -60,9 +60,6 @@ void createWindow() {
         exit(1);
     }
 }
-
-//function that initializes an SDL renderer
-//  also checks for correct initialization
 void createRenderer(SDL_Window* window) {
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (renderer == NULL) {
@@ -87,6 +84,16 @@ void init_images() {
     }
 }
 
+
+/*
+ * TODO
+ * Implement Editor
+ * Wall Collision detection
+ * IDEAS
+ * Make the game some kind of maze game, maybe with enemies/traps
+ *      this can include an automatic maze generator
+ *
+*/
 //function that handles the main program loop, inputs and cleanup after closing.
 int main() {
     SDL_Init(SDL_INIT_VIDEO);

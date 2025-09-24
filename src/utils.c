@@ -12,15 +12,15 @@ typedef struct v2_f{
 
 
 //we skip the sqrt stage because its expensive and only needed if wall hit
-static inline float get_distance_squared(v2_f v1, v2_f v2) {
+inline float get_distance_squared(v2_f v1, v2_f v2) {
     return (v1.x-v2.x)*(v1.x-v2.x)  +  (v1.y-v2.y)*(v1.y-v2.y);
 }
 
-static inline float get_length(v2_f vector) {
+inline float get_length(v2_f vector) {
     return sqrt(vector.x * vector.x + vector.y * vector.y);
 }
 
-static inline v2_f add_vectors(v2_f v1, v2_f v2) {
+inline v2_f add_vectors(v2_f v1, v2_f v2) {
     return (v2_f) {v1.x+v2.x,v1.y+v2.y};
 }
 
@@ -30,12 +30,12 @@ v2_f set_length(float len, v2_f vector) {
 }
 
 
-static inline v2_f rotate(float rad, v2_f vector) {
+inline v2_f rotate(float rad, v2_f vector) {
     return (v2_f) {vector.x * cos(rad) - vector.y*sin(rad), vector.x * sin(rad) + vector.y*cos(rad)};
 }
 
 // returns -1 if not hit, else returns distance to hit
-float check_hit(v2_f ray,v2_f pos, v2_f w1, v2_f w2) {
+float check_hit(v2_f ray,v2_f pos, v2_f w1, v2_f w2,float allowed_distance) {
 
     if (ray.x < EPSILON) {
         if (w1.x == w2.x && fabs(w2.x-pos.x) < EPSILON) {
@@ -59,11 +59,17 @@ float check_hit(v2_f ray,v2_f pos, v2_f w1, v2_f w2) {
     float hit_y             = a_ray * hit_x + b_ray;
 
     const float dist        = get_distance_squared((v2_f) {hit_x,hit_y}, pos);
-    const v2_f sized_ray    = add_vectors(pos, set_length(RENDER_DIST,ray)); 
+    const v2_f sized_ray    = add_vectors(pos, set_length(allowed_distance,ray));
     const float dist2       = get_distance_squared((v2_f) {hit_x,hit_y},sized_ray);
-    if (dist2 >= RENDER_DIST*RENDER_DIST ||dist > RENDER_DIST*RENDER_DIST ) return -1;
+    if (dist2 >= allowed_distance*allowed_distance||dist > allowed_distance*allowed_distance) return -1;
     return sqrt(dist);
 }
+
+
+
+
+
+
 
 v2_f get_sprite_coordinate(int sprite_id) {
     int y   = sprite_id / 8;

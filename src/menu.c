@@ -2,14 +2,14 @@
 
 
 #define GAME_OFFSET     200
-#define QUIT_RECT       (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) - GAME_OFFSET,   BUTTON_WIDTH, BUTTON_HEIGHT
+#define QUIT_RECT       (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) + GAME_OFFSET,   BUTTON_WIDTH, BUTTON_HEIGHT
 #define EDITOR_RECT     (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - (BUTTON_HEIGHT / 2),                 BUTTON_WIDTH, BUTTON_HEIGHT
-#define GAME_RECT       (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) + GAME_OFFSET,   BUTTON_WIDTH, BUTTON_HEIGHT
+#define GAME_RECT       (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) - GAME_OFFSET,   BUTTON_WIDTH, BUTTON_HEIGHT
 
 int handle_menu_button_press(int x,int y) {
     const int editor[4] = {EDITOR_RECT};
-    const int game[4] = {GAME_RECT};
-    const int quit[4] = {QUIT_RECT};
+    const int game[4]   = {GAME_RECT};
+    const int quit[4]   = {QUIT_RECT};
     if (x >= editor[0] && y >= editor[1] && x <= editor[0]+editor[2] && y <= editor[1]+editor[3]) {
         return EDITOR_MODE;
     }

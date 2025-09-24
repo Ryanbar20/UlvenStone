@@ -14,7 +14,7 @@ v2_f pos;
 #define GAME_MENU   (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - BUTTON_HEIGHT / 2, BUTTON_WIDTH, BUTTON_HEIGHT
 
 
-v2_f get_column(float distance) {
+inline v2_f get_column(float distance) {
     int y_lo    = (int) (HEIGHT/2.0f - ((PLAYER_HEIGHT/distance) * (HEIGHT / CAM_HEIGHT)) );
     int y_hi    = (int) (HEIGHT/2.0f + (((WALL_HEIGHT-PLAYER_HEIGHT)/distance * (HEIGHT / CAM_HEIGHT))));
     y_lo        = y_lo < 0 ? 0 : y_lo;
@@ -22,7 +22,7 @@ v2_f get_column(float distance) {
     return      (v2_f) {HEIGHT-y_hi,HEIGHT-y_lo};
 }
 
-static v2_f get_ray(int screen_index,v2_f perp) {
+inline v2_f get_ray(int screen_index,v2_f perp) {
     const float dw = (CAM_WIDTH / 2.0f - ((CAM_WIDTH * screen_index)/WIDTH));
     return set_length(1,(v2_f) {dw*perp.x + SCREEN_DIST*  view.x,dw*perp.y + SCREEN_DIST* view.y});
 }
@@ -40,7 +40,7 @@ void cast_rays(const struct World* world) {
         for (int j=0; j<world->wall_amount; j++) {
             //variables for this iteration
             const struct Wall w     = world->walls[j];
-            const float d           = check_hit(ray,pos,w.v1, w.v2);
+            const float d           = check_hit(ray,pos,w.v1, w.v2,RENDER_DIST);
             if (d >= 0 && d < wall_hit_distance) {
                 wall_hit            = world->walls + j;
                 wall_hit_distance   = d;
@@ -67,7 +67,11 @@ int handle_game_button_press(int x, int y) {
     return (x >= menu[0] && y >= menu[1] && x <= menu[0]+menu[2] && y <= menu[1]+menu[3]);
 }
 
-
+/*
+ *  Wall collision idea:
+ *      for each movement, if pressed. do a check-hit between you, next position and each wall?
+ *
+ */
 int game_loop(const struct World* world) {
 
     view        = set_length(1, (v2_f) {0,1});
@@ -90,23 +94,60 @@ int game_loop(const struct World* world) {
                 if (handle_game_button_press(mouse_x, mouse_y)) return MENU_MODE;
             }
             if (e.type == SDL_KEYDOWN) {
+                int x       =0;
+                v2_f ray    = view;
                 switch (e.key.keysym.sym)
                 {
                     case SDLK_w:
-                        pos.x += view.x;
-                        pos.y += view.y;
+                        for (int i =0; i<world->wall_amount; i++) {
+                            if (check_hit(ray,pos,world->walls[i].v1,world->walls[i].v2,1) >0) {
+                                x = 1;
+                                break;
+                            }
+                        }
+                        if (!x) {
+                            pos.x += ray.x;
+                            pos.y += ray.y;
+                        }
                         break;
                     case SDLK_s:
-                        pos.x -= view.x;
-                        pos.y -= view.y;
+                        ray.x *= -1; ray.y *= -1;
+                        for (int i =0; i<world->wall_amount; i++) {
+                            if (check_hit(ray,pos,world->walls[i].v1,world->walls[i].v2,1) >0) {
+                                x = 1;
+                                break;
+                            }
+                        }
+                        if (!x) {
+                            pos.x += ray.x;
+                            pos.y += ray.y;
+                        }
                         break;
                     case SDLK_a:
-                        pos.x -= view.y;
-                        pos.y += view.x;
+                        ray.x = view.y; ray.y = -view.x;
+                        for (int i =0; i<world->wall_amount; i++) {
+                            if (check_hit(ray,pos,world->walls[i].v1,world->walls[i].v2,1) >0) {
+                                x = 1;
+                                break;
+                            }
+                        }
+                        if (!x) {
+                            pos.x += ray.x;
+                            pos.y += ray.y;
+                        }
                         break;
                     case SDLK_d:
-                        pos.x += view.y;
-                        pos.y -= view.x;
+                        ray.x -= view.y; ray.y = view.x;
+                        for (int i =0; i<world->wall_amount; i++) {
+                            if (check_hit(ray,pos,world->walls[i].v1,world->walls[i].v2,1) >0) {
+                                x = 1;
+                                break;
+                            }
+                        }
+                        if (!x) {
+                            pos.x += ray.x;
+                            pos.y += ray.y;
+                        }
                         break;
                     case SDLK_p:
                         pause ^= 1; //flip the pause flag
@@ -145,6 +186,7 @@ int game_loop(const struct World* world) {
 
         dticks = SDL_GetTicks() - ticks; // total ticks the frame took sofar
         dticks = 1000/ FPS - dticks;    // ticks that are left to wait for next frame
+        printf("%d\n", dticks);
         if (dticks >0) SDL_Delay(dticks);
     }
     return QUIT_MODE;
