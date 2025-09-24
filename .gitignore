@@ -7,3 +7,5 @@ temp.txt
 /.idea/vcs.xml
 /.idea/misc.xml
 /.idea/.gitignore
+/.idea/inspectionProfiles/Project_Default.xml
+/src/SDL2_image.dll

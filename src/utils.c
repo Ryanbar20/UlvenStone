@@ -64,3 +64,9 @@ float check_hit(v2_f ray,v2_f pos, v2_f w1, v2_f w2) {
     if (dist2 >= RENDER_DIST*RENDER_DIST ||dist > RENDER_DIST*RENDER_DIST ) return -1;
     return sqrt(dist);
 }
+
+v2_f get_sprite_coordinate(int sprite_id) {
+    int y = sprite_id / 8;
+    int x = sprite_id % 8;
+    return (v2_f) {x*8,y*8};
+}

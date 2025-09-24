@@ -4,8 +4,8 @@ A Wolfenstein/DOOM style renderer in C using SDL <br>
 It does not contain any parts of the original Wolfenstein/DOOM assets
 ## Requirements
 You will need to install SDL2 on your system before being able to run this program.<br>
-You will also need to put an SDL2.dll file such that main.c in src can access it <br>
-E.g. put this file in the src folder <br>
+You will also need to put an SDL2.dll and SDL2_image.dll file such that main.c in src can access it <br>
+E.g. put these files in the src folder <br>
 You will need to have make installed on your system to compile the program
 
 ## Compilation

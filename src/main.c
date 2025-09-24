@@ -3,6 +3,8 @@
 #include    <stdlib.h>
 #include    <string.h>
 #define SDL_MAIN_HANDLED
+#include <time.h>
+
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #define HEIGHT  560
@@ -11,7 +13,7 @@
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 SDL_Surface* surface = NULL;
-
+SDL_Texture* spriteSheet = NULL;
 #define RENDER_DIST 100
 #define FPS 30.0f
 
@@ -23,6 +25,13 @@ SDL_Surface* surface = NULL;
 
 #define BUTTON_WIDTH 200
 #define BUTTON_HEIGHT 100
+#define FONT_SIZE 32
+
+
+const int game_letters[4] = {6,0,12,4};
+const int editor_letters[6] = {4,3,8,19,14,17};
+const int menu_letters[4] = {12,4,13,20};
+
 
 #include "utils.c"
 #include "world_loader.c"
@@ -72,7 +81,11 @@ void init_images() {
         fprintf(stderr, "Couldnt initialize image loader: %s\n",IMG_GetError());
         exit(1);
     }
-    surface =  SDL_GetWindowSurface( window );
+    surface =  IMG_Load("../resources/font.png");
+    if (surface == NULL) {
+        fprintf(stderr, "Couldnt load spritesheet: %s\n",IMG_GetError());
+        exit(1);
+    }
 }
 
 
@@ -90,6 +103,8 @@ int main() {
     createWindow();
     createRenderer(window);
     init_images();
+    spriteSheet = SDL_CreateTextureFromSurface(renderer,surface);
+
     struct World* world = load_world();
     int mode = MENU_MODE;
 
@@ -107,6 +122,7 @@ int main() {
     //free data
     free(world->walls);
     free(world);
+    SDL_DestroyTexture(spriteSheet);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     IMG_Quit();
