@@ -1,12 +1,12 @@
 
 
 
-#define GAME_OFFSET 200
-#define QUIT_RECT (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) - GAME_OFFSET, BUTTON_WIDTH, BUTTON_HEIGHT
-#define EDITOR_RECT (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - BUTTON_HEIGHT / 2, BUTTON_WIDTH, BUTTON_HEIGHT
-#define GAME_RECT (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) + GAME_OFFSET, BUTTON_WIDTH, BUTTON_HEIGHT
+#define GAME_OFFSET     200
+#define QUIT_RECT       (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) - GAME_OFFSET,   BUTTON_WIDTH, BUTTON_HEIGHT
+#define EDITOR_RECT     (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - (BUTTON_HEIGHT / 2),                 BUTTON_WIDTH, BUTTON_HEIGHT
+#define GAME_RECT       (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) + GAME_OFFSET,   BUTTON_WIDTH, BUTTON_HEIGHT
 
-int handle_menu_button_press(int x, int y) {
+int handle_menu_button_press(int x,int y) {
     const int editor[4] = {EDITOR_RECT};
     const int game[4] = {GAME_RECT};
     const int quit[4] = {QUIT_RECT};
@@ -34,12 +34,14 @@ int menu_loop(SDL_Renderer* renderer) {
         while(SDL_PollEvent(&e) !=0) {
             if (e.type == SDL_QUIT) return QUIT_MODE;
             //check if any button was clicked
-            int condition   = e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT;
-            SDL_GetMouseState(&mouse_x,&mouse_y);
-            mouse_x         = handle_menu_button_press(mouse_x, mouse_y);
-            if (condition && mouse_x == GAME_MODE)      return GAME_MODE;
-            if (condition && mouse_x == EDITOR_MODE)    return EDITOR_MODE;
-            if (condition && mouse_x == QUIT_MODE)      return QUIT_MODE;
+            if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
+                SDL_GetMouseState(&mouse_x,&mouse_y);
+                mouse_x         = handle_menu_button_press(mouse_x, mouse_y);
+                if (mouse_x == GAME_MODE)      return GAME_MODE;
+                if (mouse_x == EDITOR_MODE)    return EDITOR_MODE;
+                if (mouse_x == QUIT_MODE)      return QUIT_MODE;
+            }
+
         }
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
@@ -61,9 +63,7 @@ int menu_loop(SDL_Renderer* renderer) {
 
         dticks = SDL_GetTicks() - ticks;
         dticks = 1000/ FPS - dticks;
-        if (dticks >0) {
-            SDL_Delay(dticks);
-        }
+        if (dticks >0) SDL_Delay(dticks);
     }
     return QUIT_MODE;
 

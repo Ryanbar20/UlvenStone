@@ -6,9 +6,6 @@
 #define SCREEN_DIST     1   // corresponds to FOV (higher means less FOV)
 #define CAM_WIDTH       1.5f  // corresponds to FOV (higher means more FOV) (currently around 85deg)
 
-
-
-
 v2_f view;
 v2_f pos;
 
@@ -31,7 +28,7 @@ static v2_f get_ray(int screen_index,v2_f perp) {
 }
 
 
-void cast_rays(struct World* world) {
+void cast_rays(const struct World* world) {
     const v2_f perpendicular        = rotate(DEG_TO_RAD(90),view);
     for (int i =0; i<WIDTH; i++) {
         //assign loop variables
@@ -42,10 +39,11 @@ void cast_rays(struct World* world) {
         //determine wall to draw, if any
         for (int j=0; j<world->wall_amount; j++) {
             //variables for this iteration
-            const struct Wall w = world->walls[j];
-            const float d       = check_hit(ray,pos,w.v1, w.v2);
+            const struct Wall w     = world->walls[j];
+            const float d           = check_hit(ray,pos,w.v1, w.v2);
             if (d >= 0 && d < wall_hit_distance) {
-                wall_hit        = world->walls + j;    wall_hit_distance = d;
+                wall_hit            = world->walls + j;
+                wall_hit_distance   = d;
             }
         }
 
@@ -70,7 +68,7 @@ int handle_game_button_press(int x, int y) {
 }
 
 
-int game_loop(struct World* world) {
+int game_loop(const struct World* world) {
 
     view        = set_length(1, (v2_f) {0,1});
     pos         = world->spawn;
@@ -87,7 +85,7 @@ int game_loop(struct World* world) {
         while(SDL_PollEvent(&e) !=0){
 
             if (e.type == SDL_QUIT) return QUIT_MODE;
-            if (e.type == SDL_MOUSEBUTTONDOWN && e.mouse.button.button == SDL_BUTTON_LEFT && pause;) {
+            if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT && pause) {
                 SDL_GetMouseState(&mouse_x,&mouse_y);
                 if (handle_game_button_press(mouse_x, mouse_y)) return MENU_MODE;
             }
@@ -135,9 +133,9 @@ int game_loop(struct World* world) {
         cast_rays(world);
         if (pause) {
             SDL_SetRenderDrawColor( renderer, 0,0,0, 100 );
-            const SDL_Rect whole_screen = {0,0,WIDTH,HEIGHT};
+            const SDL_Rect whole_screen =   {0,0,WIDTH,HEIGHT};
+            const SDL_Rect rect =           {GAME_MENU};
             SDL_RenderFillRect(renderer,&whole_screen);
-            SDL_Rect rect = {GAME_MENU};
             SDL_SetRenderDrawColor( renderer,0,0,255,255);
             SDL_RenderFillRect(renderer,&rect);
             //draw button text
@@ -147,11 +145,7 @@ int game_loop(struct World* world) {
 
         dticks = SDL_GetTicks() - ticks; // total ticks the frame took sofar
         dticks = 1000/ FPS - dticks;    // ticks that are left to wait for next frame
-        if (dticks >0) {
-            printf("%d\n",dticks);
-            SDL_Delay(dticks);
-        }
-
+        if (dticks >0) SDL_Delay(dticks);
     }
     return QUIT_MODE;
 
