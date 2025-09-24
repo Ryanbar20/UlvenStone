@@ -6,6 +6,9 @@
 #define SCREEN_DIST     1   // corresponds to FOV (higher means less FOV)
 #define CAM_WIDTH       1.5f  // corresponds to FOV (higher means more FOV) (currently around 85deg)
 
+
+
+
 v2_f view;
 v2_f pos;
 
