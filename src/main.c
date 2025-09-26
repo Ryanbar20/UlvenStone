@@ -2,26 +2,28 @@
 #include    <stdio.h>
 #include    <stdlib.h>
 #include    <string.h>
+
 #define SDL_MAIN_HANDLED
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
-#define HEIGHT  560
-#define WIDTH   1000
+
 
 SDL_Window *window          = NULL;
 SDL_Renderer *renderer      = NULL;
 SDL_Surface* surface        = NULL;
 SDL_Texture* spriteSheet    = NULL;
 
+
 #define RENDER_DIST     100
 #define FPS             30.0f
 
-#define MENU_MODE       2
-#define GAME_MODE       1
 #define EDITOR_MODE     0
+#define GAME_MODE       1
+#define MENU_MODE       2
 #define QUIT_MODE       3
 
-
+#define HEIGHT          560
+#define WIDTH           1000
 #define BUTTON_WIDTH    200
 #define BUTTON_HEIGHT   100
 #define FONT_SIZE       32
@@ -32,7 +34,8 @@ const int editor_letters[6] = {4,3,8,19,14,17};
 const int menu_letters[4]   = {12,4,13,20};
 const int quit_letters[4]   = {16,20,8,19};
 
-#include "utils.c"
+#include "utils/ray_casting.c"
+#include "utils/display.c"
 #include "world_loader.c"
 #include "editor.c"
 #include "game.c"
@@ -40,16 +43,15 @@ const int quit_letters[4]   = {16,20,8,19};
 
 
 
-
 /*
- *  Todo:
-    Make world editor
- * 
- */
-
-
-//function that initializes an SDL window
-//  also checks for correct initialization
+ * TODO
+ * Implement Editor
+ * Wall Collision detection
+ * IDEAS
+ * Make the game some kind of maze game, maybe with enemies/traps
+ *      this can include an automatic maze generator
+ *
+*/
 void createWindow() {
     window = SDL_CreateWindow(
         "UlvenStone",
@@ -85,33 +87,25 @@ void init_images() {
 }
 
 
-/*
- * TODO
- * Implement Editor
- * Wall Collision detection
- * IDEAS
- * Make the game some kind of maze game, maybe with enemies/traps
- *      this can include an automatic maze generator
- *
-*/
-//function that handles the main program loop, inputs and cleanup after closing.
 int main() {
+    //SDL initialization
     SDL_Init(SDL_INIT_VIDEO);
     createWindow();
     createRenderer(window);
     init_images();
+    //Data&File loading
     spriteSheet = SDL_CreateTextureFromSurface(renderer,surface);
-
     struct World* world = load_world();
     int mode            = MENU_MODE;
-
+    
+    // Main process loop. Each screen returns the next screen to render or quit
     while (mode != QUIT_MODE) {
         if (mode == GAME_MODE)      {mode = game_loop(world);   continue;}
         if (mode == EDITOR_MODE)    {mode = editor_loop(world); continue;}
         if (mode == MENU_MODE)      {mode = menu_loop(renderer);}
     }
 
-    //free data
+    //freeing data & SDL exiting
     free(world->walls);
     free(world);
     SDL_DestroyTexture(spriteSheet);

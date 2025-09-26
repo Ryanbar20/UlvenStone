@@ -4,8 +4,9 @@
 #define RENDER_DIST 10
 #define ASSERT_EQUALS_FLOAT(x,y) (fabs(x-y) < 0.01)?  printf("Test Passed: \t%f, \t%f\n",x,y) : fprintf(stderr, "Test failed: \t%f, \t%f\n",x,y)
 #define ASSERT_TRUE(x)  x ? printf("Test Passed\n") : fprintf(stderr, "Test failed\n")
-#include "../src/utils.c"
+#include "../src/utils/ray_casting.c"
 
+v2_f pos = {0,0};
 v2_f v1 = {1,3};
 v2_f v2 = {1,10};
 v2_f v3 = {6,3};
@@ -50,18 +51,18 @@ void test_check_hit() {
     printf("Testing the check_hit function :\n");
     pos.x = v6.x;
     pos.y = v6.y;
-    ASSERT_EQUALS_FLOAT(-1.0 ,check_hit(v10,v4,v8)); //no hit and upward view
-    ASSERT_EQUALS_FLOAT(-1.0, check_hit(set_length(1,v9),v7,v8)); //no hit
+    ASSERT_EQUALS_FLOAT(-1.0 ,check_hit(v10,pos,v4,v8,RENDER_DIST)); //no hit and upward view
+    ASSERT_EQUALS_FLOAT(-1.0, check_hit(set_length(1,v9),pos,v7,v8,RENDER_DIST)); //no hit
     pos.x = 0;
     pos.y = 0;
-    ASSERT_EQUALS_FLOAT(-1.0,check_hit((v2_f) {0,1},(v2_f) {0,13},(v2_f) {0,7}));// wall parralel and upward view
-    ASSERT_EQUALS_FLOAT(-1.0,check_hit(set_length(1,(v2_f) {1,2}),(v2_f) {3,6},(v2_f) {2,4}));// wall parralel
-    ASSERT_EQUALS_FLOAT(1.490,check_hit(set_length(1,(v2_f) {-1,-2}),(v2_f) {3,-1},(v2_f) {-8,-2}));// hit
-    ASSERT_EQUALS_FLOAT(10.0,check_hit((v2_f) {0,1},(v2_f) {5,10},(v2_f) {-6,10}));// hit with upward view
-    ASSERT_EQUALS_FLOAT(-1.0,check_hit((v2_f) {1,1},(v2_f) {0,-2},(v2_f) {-3,0}));// behind player's back
+    ASSERT_EQUALS_FLOAT(-1.0,check_hit((v2_f) {0,1},pos,(v2_f) {0,13},(v2_f) {0,7},RENDER_DIST));// wall parralel and upward view
+    ASSERT_EQUALS_FLOAT(-1.0,check_hit(set_length(1,(v2_f) {1,2}),pos,(v2_f) {3,6},(v2_f) {2,4},RENDER_DIST));// wall parralel
+    ASSERT_EQUALS_FLOAT(1.490,check_hit(set_length(1,(v2_f) {-1,-2}),pos,(v2_f) {3,-1},(v2_f) {-8,-2},RENDER_DIST));// hit
+    ASSERT_EQUALS_FLOAT(10.0,check_hit((v2_f) {0,1},pos,(v2_f) {5,10},(v2_f) {-6,10},RENDER_DIST));// hit with upward view
+    ASSERT_EQUALS_FLOAT(-1.0,check_hit((v2_f) {1,1},pos,(v2_f) {0,-2},(v2_f) {-3,0},RENDER_DIST));// behind player's back
     pos.x = 4;
     pos.y = 4;
-    ASSERT_EQUALS_FLOAT(-1.0,check_hit((v2_f) {0,1},(v2_f) {9,-6},(v2_f) {1,0}));// behind player's back with upward view
+    ASSERT_EQUALS_FLOAT(-1.0,check_hit((v2_f) {0,1},pos,(v2_f) {9,-6},(v2_f) {1,0},RENDER_DIST));// behind player's back with upward view
 }
 
 int main() {
