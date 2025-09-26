@@ -9,3 +9,10 @@ void render_button(const int* letters,int letter_amount,const SDL_Rect* button) 
 }
 
 
+int char_to_index(char a) {
+    int i = (int) a;
+    if (i >90) {
+        return i -97;
+    }
+    return i = 65;
+}
