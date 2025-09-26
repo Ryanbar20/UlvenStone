@@ -2,9 +2,10 @@
 
 
 #define GAME_OFFSET     200
-#define QUIT_RECT       (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) + GAME_OFFSET,   BUTTON_WIDTH, BUTTON_HEIGHT
-#define EDITOR_RECT     (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - (BUTTON_HEIGHT / 2),                 BUTTON_WIDTH, BUTTON_HEIGHT
-#define GAME_RECT       (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) - GAME_OFFSET,   BUTTON_WIDTH, BUTTON_HEIGHT
+#define QUIT_RECT       100, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) + GAME_OFFSET,   BUTTON_WIDTH, BUTTON_HEIGHT
+#define EDITOR_RECT     100, (HEIGHT / 2) - (BUTTON_HEIGHT / 2),                 BUTTON_WIDTH, BUTTON_HEIGHT
+#define GAME_RECT       100, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) - GAME_OFFSET,   BUTTON_WIDTH, BUTTON_HEIGHT
+#define WORLD_NAME_RECT 350, 100,400,10
 
 int handle_menu_button_press(int x,int y) {
     const int editor[4] = {EDITOR_RECT};
@@ -22,7 +23,7 @@ int handle_menu_button_press(int x,int y) {
     return MENU_MODE;
 }
 
-int menu_loop(SDL_Renderer* renderer) {
+int menu_loop() {
     //TODO
     SDL_Event e;
     int mouse_x; int mouse_y;
@@ -46,18 +47,29 @@ int menu_loop(SDL_Renderer* renderer) {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
         //draw buttons
-        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+        
         SDL_Rect editor     = {EDITOR_RECT};
         SDL_Rect game       = {GAME_RECT};
         SDL_Rect quit       = {QUIT_RECT};
-        SDL_RenderFillRect(renderer,&game);
-        SDL_RenderFillRect(renderer, &editor);
         SDL_SetRenderDrawColor(renderer, 255, 0,0, 255);
         SDL_RenderFillRect(renderer,&quit);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+        SDL_RenderFillRect(renderer,&game);
+        SDL_RenderFillRect(renderer, &editor);
+        SDL_Rect world_rect = {WORLD_NAME_RECT};
+        world_rect.y -= 15;
+        for (int i =0; i < world_list->world_amt; i++) {
+            world_rect.y += 15;
+            SDL_RenderFillRect(renderer,&world_rect);
+        }
+
         //draw button text
         render_button(editor_letters,6,&editor);
         render_button(game_letters,4,&game);
         render_button(quit_letters,4,&quit);
+
+
+
 
         SDL_RenderPresent(renderer);
 

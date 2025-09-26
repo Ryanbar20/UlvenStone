@@ -11,7 +11,7 @@
 
 /*
     TODO:
-    handle world choice
+    HANDLE MAX WORLD NAME LENGTH
 */
 struct Wall{
     v2_f v1;
@@ -225,7 +225,18 @@ struct World_names* check_world_file_syntax() {
 struct World_List* load_world_file() {
     struct World_names* names = check_world_file_syntax();
     struct World_List* file = (struct World_List*)malloc(sizeof(struct World_List));
-    struct World* worlds[names->world_amt];
+    if (file == NULL) {
+        free(names->names);
+        free(names);
+        return NULL;
+    }
+    struct World** worlds = malloc(names->world_amt * sizeof(struct World*));
+    if (worlds == NULL) {
+        free(file);
+        free(names->names);
+        free(names);
+        return NULL;
+    }
     for (int i =0; i < names->world_amt; i++) {
         char* name = names->names + i * MAX_WORLD_NAME_LEN;
         struct World* world = load_world(name);
@@ -233,14 +244,17 @@ struct World_List* load_world_file() {
     }
     file->world_amt = names->world_amt;
     file->names = names;
-    file->worlds = &worlds[0];
+    file->worlds = worlds;
     return file;
 }
 
 
 void destroy_world_list(struct World_List* list) {
     free(list->names->names);
+    free(list->names);
     for (int i = 0; i < list->world_amt; i++) {
         free(list->worlds[i]);
     }
+    free(list->worlds);
+    free(list);
 }

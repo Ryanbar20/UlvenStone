@@ -95,7 +95,7 @@ int main() {
     while (mode != QUIT_MODE) {
         if (mode == GAME_MODE)      {mode = game_loop(world);   continue;}
         if (mode == EDITOR_MODE)    {mode = editor_loop(); continue;}
-        if (mode == MENU_MODE)      {mode = menu_loop(renderer);}
+        if (mode == MENU_MODE)      {mode = menu_loop();}
     }
 
     //freeing data & SDL exiting

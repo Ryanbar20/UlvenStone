@@ -7,3 +7,5 @@ void render_button(const int* letters,int letter_amount,const SDL_Rect* button) 
         SDL_RenderCopy(renderer, spriteSheet, &srcRect, &dstRect);
     }
 }
+
+
