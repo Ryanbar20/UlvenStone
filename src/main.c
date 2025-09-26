@@ -14,6 +14,7 @@ SDL_Surface* surface        = NULL;
 SDL_Texture* spriteSheet    = NULL;
 
 
+
 #define RENDER_DIST     100
 #define FPS             30.0f
 
@@ -28,6 +29,8 @@ SDL_Texture* spriteSheet    = NULL;
 #define BUTTON_HEIGHT   100
 #define FONT_SIZE       32
 
+#define MAX_WORLDS 10
+#define MAX_WORLD_NAME_LEN 50
 
 const int game_letters[4]   = {6,0,12,4};
 const int editor_letters[6] = {4,3,8,19,14,17};
@@ -42,16 +45,6 @@ const int quit_letters[4]   = {16,20,8,19};
 #include "menu.c"
 
 
-
-/*
- * TODO
- * Implement Editor
- * Wall Collision detection
- * IDEAS
- * Make the game some kind of maze game, maybe with enemies/traps
- *      this can include an automatic maze generator
- *
-*/
 void createWindow() {
     window = SDL_CreateWindow(
         "UlvenStone",
@@ -95,13 +88,17 @@ int main() {
     init_images();
     //Data&File loading
     spriteSheet = SDL_CreateTextureFromSurface(renderer,surface);
+    struct World_names* world_names = check_world_file_syntax();
+    if (world_names == NULL) {exit(1);}
+    for (int i =0; i< world_names->world_amt; i++) {
+        printf("%s\n",world_names->names + i * MAX_WORLD_NAME_LEN);
+    }
     struct World* world = load_world();
     int mode            = MENU_MODE;
-    
     // Main process loop. Each screen returns the next screen to render or quit
     while (mode != QUIT_MODE) {
         if (mode == GAME_MODE)      {mode = game_loop(world);   continue;}
-        if (mode == EDITOR_MODE)    {mode = editor_loop(world); continue;}
+        if (mode == EDITOR_MODE)    {mode = editor_loop(); continue;}
         if (mode == MENU_MODE)      {mode = menu_loop(renderer);}
     }
 

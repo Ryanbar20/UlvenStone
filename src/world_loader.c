@@ -1,4 +1,14 @@
 #define MAX_WALLS 100
+
+
+
+#define WALL 0
+#define END 1
+#define NAME 2
+#define SPAWN 3
+#define WALL_OR_END 4
+
+
 /*
     TODO:
     handle world choice
@@ -18,6 +28,11 @@ struct World{
     struct Wall* walls;
 };
 
+
+struct World_names{
+    int world_amt;
+    char* names; // points to char[MAX_WORLDS][MAX_WORLD_NAME_LEN]
+};
 
 // for now, default world is CUBE
 struct World* load_world() {
@@ -45,7 +60,7 @@ struct World* load_world() {
 
     struct Wall* walls = (struct Wall*)malloc(MAX_WALLS * sizeof(struct Wall));
     int count = 0;
-    int x1; int y1; int x2; int y2; int r; int g; int b;
+    float x1; float y1; float x2; float y2; int r; int g; int b;
     char t;
     int found_spawn = 0;
     v2_f spawn;
@@ -58,7 +73,7 @@ struct World* load_world() {
         }
         if (buffer[0] == 'S') {
             found_spawn = 1;
-            if (sscanf(buffer, "%c %d %d",&t,&x1,&y1) != 3) {
+            if (sscanf(buffer, "%c %f %f",&t,&x1,&y1) != 3) {
                 fprintf(stderr,"Parse error on: %s\n", buffer);
                 free(walls);
                 return NULL;
@@ -68,7 +83,7 @@ struct World* load_world() {
             continue;
         }
 
-        if (sscanf(buffer, "%d %d %d %d %d %d %d",&x1,&y1,&x2,&y2,&r,&g,&b) != 7) {
+        if (sscanf(buffer, "%f %f %f %f %d %d %d",&x1,&y1,&x2,&y2,&r,&g,&b) != 7) {
             fprintf(stderr,"Parse error on: %s\n", buffer);
             free(walls);
             return NULL;
@@ -145,4 +160,57 @@ void print_world_layout(struct World* world) {
     }
 
 
+}
+
+
+
+struct World_names* check_world_file_syntax() {
+    /*
+        Returns a pointer to a char[MAX_WORLDS][MAX_WORLD_NAME_LEN] containing all world names
+
+    
+    */
+    FILE* file = fopen("../resources/world.txt", "r");
+    if (file == NULL) {
+        fprintf(stderr, "Error while opening the world.txt file\n");
+        return NULL;
+    }
+    char buffer[256];
+    char* world_names = malloc(sizeof(char) * MAX_WORLDS * MAX_WORLD_NAME_LEN) ;
+    int num_world = 0;
+    int line =-1;
+    int next_token_expected = NAME;
+    char c; 
+    float t1; float t2; float t3; float t4;int t5;int t6;int t7;
+
+    while (fgets(buffer, sizeof(buffer), file) != NULL) {
+        line++;
+        if (buffer[0] == 'E'&& buffer[1] =='N'&&  buffer[2] =='D'&& buffer[3] =='\n' && (next_token_expected == END || next_token_expected == WALL_OR_END)) {
+            next_token_expected = NAME;
+            continue;
+        }
+        if (sscanf(buffer, "%c %f %f",&c,&t1,&t2) == 3 && c == 'S' && next_token_expected == SPAWN) {
+            next_token_expected = WALL;
+            continue;
+        }
+        if (sscanf(buffer, "%f %f %f %f %d %d %d",&t1,&t2,&t3,&t4,&t5,&t6,&t7) == 7 && (next_token_expected == WALL || next_token_expected == WALL_OR_END)) {
+            next_token_expected = WALL_OR_END;
+            continue;
+        }
+        if (next_token_expected == NAME) {
+            buffer[strcspn(buffer, "\n")] = '\0';
+            strcpy(world_names + num_world * MAX_WORLD_NAME_LEN,buffer);
+            num_world++;
+            next_token_expected = SPAWN;
+            continue;
+        }
+            fprintf(stderr, "Syntax error in world.txt at line %d: %s",line, buffer);
+            return NULL;
+        }
+
+    char* temp = (char*)realloc(world_names,sizeof(char) * MAX_WORLD_NAME_LEN * num_world);
+    if (temp != NULL) world_names = temp;
+    struct World_names* names = malloc(sizeof(struct World_names));
+    names->world_amt = num_world; names->names = world_names;
+    return names;
 }
