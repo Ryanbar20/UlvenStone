@@ -3,6 +3,9 @@
     World selection                                                         ~
         in editor or/and in menu? Know which worlds already exist   
     zoom in/out, move                                                       v
+    World selection                                                         ~
+        in editor or/and in menu? Know which worlds already exist   
+    zoom in/out, move                                                       v
         scale, viewpoint
     wall movement
         mouse click detection
