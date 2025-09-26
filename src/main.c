@@ -8,11 +8,11 @@
 #include "SDL2/SDL_image.h"
 
 
-SDL_Window *window          = NULL;
-SDL_Renderer *renderer      = NULL;
-SDL_Surface* surface        = NULL;
-SDL_Texture* spriteSheet    = NULL;
-
+SDL_Window *window              = NULL;
+SDL_Renderer *renderer          = NULL;
+SDL_Surface* surface            = NULL;
+SDL_Texture* spriteSheet        = NULL;
+struct World_List* world_list   = NULL;
 
 
 #define RENDER_DIST     100
@@ -88,12 +88,8 @@ int main() {
     init_images();
     //Data&File loading
     spriteSheet = SDL_CreateTextureFromSurface(renderer,surface);
-    struct World_names* world_names = check_world_file_syntax();
-    if (world_names == NULL) {exit(1);}
-    for (int i =0; i< world_names->world_amt; i++) {
-        printf("%s\n",world_names->names + i * MAX_WORLD_NAME_LEN);
-    }
-    struct World* world = load_world();
+    world_list = load_world_file();
+    struct World* world = world_list->worlds[1];
     int mode            = MENU_MODE;
     // Main process loop. Each screen returns the next screen to render or quit
     while (mode != QUIT_MODE) {
@@ -103,6 +99,7 @@ int main() {
     }
 
     //freeing data & SDL exiting
+    destroy_world_list(world_list);
     free(world->walls);
     free(world);
     SDL_DestroyTexture(spriteSheet);

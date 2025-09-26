@@ -34,27 +34,33 @@ struct World_names{
     char* names; // points to char[MAX_WORLDS][MAX_WORLD_NAME_LEN]
 };
 
-// for now, default world is CUBE
-struct World* load_world() {
+struct World_List{
+  int world_amt; // amount of worlds in the world file
+  struct World_names* names; // names of the worlds
+  struct World** worlds; // array containing all the worlds in the world_file
+};
+
+
+
+struct World* load_world(char* world_name) {
     FILE* file = fopen("../resources/world.txt", "r");
     if (file == NULL) {
         fprintf(stderr, "Error while opening the world.txt file\n");
         return NULL;
     }
-    char name[] = "blouseWorld";
     char buffer[256];
     int found = 0;
     //find world
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
         buffer[strcspn(buffer, "\n")] = '\0';
-        if (strcmp(name,buffer) == 0) {
+        if (strcmp(world_name,buffer) == 0) {
             found = 1;
             break;
         }
     }
     // check if world found
     if (found == 0) {
-        fprintf(stderr, "Invalid world name passed: %s\n",name);
+        fprintf(stderr, "Invalid world name passed: %s\n",*world_name);
         return NULL;
     }
 
@@ -213,4 +219,28 @@ struct World_names* check_world_file_syntax() {
     struct World_names* names = malloc(sizeof(struct World_names));
     names->world_amt = num_world; names->names = world_names;
     return names;
+}
+
+
+struct World_List* load_world_file() {
+    struct World_names* names = check_world_file_syntax();
+    struct World_List* file = (struct World_List*)malloc(sizeof(struct World_List));
+    struct World* worlds[names->world_amt];
+    for (int i =0; i < names->world_amt; i++) {
+        char* name = names->names + i * MAX_WORLD_NAME_LEN;
+        struct World* world = load_world(name);
+        worlds[i] = world;
+    }
+    file->world_amt = names->world_amt;
+    file->names = names;
+    file->worlds = &worlds[0];
+    return file;
+}
+
+
+void destroy_world_list(struct World_List* list) {
+    free(list->names->names);
+    for (int i = 0; i < list->world_amt; i++) {
+        free(list->worlds[i]);
+    }
 }
