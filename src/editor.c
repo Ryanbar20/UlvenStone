@@ -65,7 +65,7 @@ int editor_loop() {
     int ticks   = 0;
     int dticks  = 0;
     int pause   = 0;
-    struct World* world = world_list->worlds[1]; // TODO : world selection
+    struct World* world = world_list->worlds[selected_world]; // TODO : world selection
     while (1){
         //main game loop
         ticks = SDL_GetTicks();

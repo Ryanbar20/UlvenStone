@@ -37,6 +37,8 @@ const int editor_letters[6] = {4,3,8,19,14,17};
 const int menu_letters[4]   = {12,4,13,20};
 const int quit_letters[4]   = {16,20,8,19};
 
+int selected_world = 0;
+
 #include "utils/ray_casting.c"
 #include "utils/display.c"
 #include "world_loader.c"
@@ -89,7 +91,7 @@ int main() {
     //Data&File loading
     spriteSheet = SDL_CreateTextureFromSurface(renderer,surface);
     world_list = load_world_file();
-    struct World* world = world_list->worlds[1];
+    struct World* world = world_list->worlds[selected_world];
     int mode            = MENU_MODE;
     // Main process loop. Each screen returns the next screen to render or quit
     while (mode != QUIT_MODE) {

@@ -88,8 +88,8 @@ int handle_game_button_press(int x, int y) {
  *          Wave Function Collapse for this?
  *
  */
-int game_loop(const struct World* world) {
-
+int game_loop() {
+    struct World* world = world_list->worlds[selected_world];
     view        = set_length(1, (v2_f) {0,1});
     pos         = world->spawn;
     SDL_Event e;
@@ -99,6 +99,7 @@ int game_loop(const struct World* world) {
     int pause   = 0;
     int ticks   = 0;
     int dticks  = 0;
+    
     while (!quit){
         //main game loop
         ticks   = SDL_GetTicks();

@@ -23,6 +23,14 @@ int handle_menu_button_press(int x,int y) {
     return MENU_MODE;
 }
 
+int key_to_digit(SDL_Keycode key) {
+    if (key >= SDLK_0 && key <= SDLK_9) {
+        return key - SDLK_0;
+    }
+    return -1;
+}
+
+
 int menu_loop() {
     //TODO
     SDL_Event e;
@@ -42,6 +50,11 @@ int menu_loop() {
                 if (mouse_x == EDITOR_MODE)    return EDITOR_MODE;
                 if (mouse_x == QUIT_MODE)      return QUIT_MODE;
             }
+            if (e.type == SDL_KEYDOWN) {
+                int k = key_to_digit(e.key.keysym.sym);
+                if (k == -1) continue;
+                selected_world = k;
+            }
 
         }
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -58,10 +71,23 @@ int menu_loop() {
         SDL_RenderFillRect(renderer, &editor);
         SDL_Rect world_rect = {WORLD_NAME_RECT};
         world_rect.y -= 15;
-        for (int i =0; i < world_list->world_amt; i++) {
+        for (int i =0; i < MAX_WORLDS; i++) {
             world_rect.y += 15;
-            SDL_RenderFillRect(renderer,&world_rect);
+            if (i == selected_world) {
+                SDL_SetRenderDrawColor(renderer,255,255,255,255);
+                SDL_RenderFillRect(renderer,&world_rect);
+                SDL_SetRenderDrawColor(renderer,0,0,255,255);
+            } else {
+                SDL_RenderFillRect(renderer,&world_rect);
+            }
+            
+            if (i > world_list->world_amt) continue;
+            char* name = world_list->names->names + i*sizeof(char)*MAX_WORLD_NAME_LEN;
+            render_string(name,&world_rect);
         }
+
+
+
 
         //draw button text
         render_button(editor_letters,6,&editor);
