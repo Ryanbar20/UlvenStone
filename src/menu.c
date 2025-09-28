@@ -1,10 +1,11 @@
 
 
 
-#define GAME_OFFSET     200
-#define QUIT_RECT       100, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) + GAME_OFFSET,   BUTTON_WIDTH, BUTTON_HEIGHT
-#define EDITOR_RECT     100, (HEIGHT / 2) - (BUTTON_HEIGHT / 2),                 BUTTON_WIDTH, BUTTON_HEIGHT
-#define GAME_RECT       100, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) - GAME_OFFSET,   BUTTON_WIDTH, BUTTON_HEIGHT
+#define GAME_OFFSET                 200
+#define QUIT_RECT                   100, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) + GAME_OFFSET,   BUTTON_WIDTH, BUTTON_HEIGHT
+#define EDITOR_RECT                 100, (HEIGHT / 2) - (BUTTON_HEIGHT / 2),                 BUTTON_WIDTH, BUTTON_HEIGHT
+#define GAME_RECT                   100, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) - GAME_OFFSET,   BUTTON_WIDTH, BUTTON_HEIGHT
+#define WORLD_OUT_OF_BOUNDS_RECT    400,400,400,20
 #define WORLD_NAME_RECT 350, 100,400,10
 
 int handle_menu_button_press(int x,int y) {
@@ -32,7 +33,8 @@ int key_to_digit(SDL_Keycode key) {
 
 
 int menu_loop() {
-    //TODO
+    
+    int display_world_out_of_bounds = 0;
     SDL_Event e;
     int mouse_x; int mouse_y;
     int ticks   = 0;
@@ -46,7 +48,10 @@ int menu_loop() {
             if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
                 SDL_GetMouseState(&mouse_x,&mouse_y);
                 mouse_x         = handle_menu_button_press(mouse_x, mouse_y);
-                if (mouse_x == GAME_MODE)      return GAME_MODE;
+                if (mouse_x == GAME_MODE) {
+                    if (selected_world < world_list->world_amt) return GAME_MODE;
+                    display_world_out_of_bounds = 1;
+                }     
                 if (mouse_x == EDITOR_MODE)    return EDITOR_MODE;
                 if (mouse_x == QUIT_MODE)      return QUIT_MODE;
             }
@@ -86,7 +91,13 @@ int menu_loop() {
             render_string(name,&world_rect);
         }
 
-
+        if (display_world_out_of_bounds) {
+            SDL_Rect error_rect = {WORLD_OUT_OF_BOUNDS_RECT};
+            SDL_SetRenderDrawColor(renderer,255,0,0,255);
+            SDL_RenderFillRect(renderer, &error_rect);
+            char* error_msg = "cannot start game in nonexistent world";
+            render_string(error_msg,&error_rect);
+        }
 
 
         //draw button text

@@ -1,3 +1,15 @@
+
+
+
+
+v2_f get_sprite_coordinate(int sprite_id) {
+    int y   = sprite_id / 8;
+    int x   = sprite_id % 8;
+    return  (v2_f) {x*8,y*8};
+}
+
+
+
 void render_button(const int* letters,int letter_amount,const SDL_Rect* button) {
     for (int i = 0; i < letter_amount; i++) {
         v2_f letter_xy = get_sprite_coordinate(letters[i]);
