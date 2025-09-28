@@ -12,8 +12,7 @@
 v2_f view;
 v2_f pos;
 
-#define SKY_COLOR   0,0,64,255
-#define FLOOR_COLOR 64,64,64,255
+
 #define GAME_MENU   (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - BUTTON_HEIGHT / 2, BUTTON_WIDTH, BUTTON_HEIGHT
 
 
@@ -149,11 +148,11 @@ int game_loop() {
 
         cast_rays(world);
         if (pause) {
-            SDL_SetRenderDrawColor( renderer, 0,0,0, 100 );
+            SDL_SetRenderDrawColor( renderer, SHADOW);
             const SDL_Rect whole_screen =   {0,0,WIDTH,HEIGHT};
             const SDL_Rect rect =           {GAME_MENU};
             SDL_RenderFillRect(renderer,&whole_screen);
-            SDL_SetRenderDrawColor( renderer,0,0,255,255);
+            SDL_SetRenderDrawColor( renderer,BLUE);
             SDL_RenderFillRect(renderer,&rect);
             //draw button text
             render_button(menu_letters,4,&rect);

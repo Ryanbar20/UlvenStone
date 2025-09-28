@@ -58,8 +58,7 @@ struct World* load_world(char* world_name) {
             break;
         }
     }
-    // check if world found
-    if (found == 0) {
+    if (!found) {
         fprintf(stderr, "Invalid world name passed: %s\n",*world_name);
         return NULL;
     }
@@ -74,13 +73,12 @@ struct World* load_world(char* world_name) {
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
         // if we reached the end of this world declaration
         buffer[strcspn(buffer, "\n")] = '\0';
-        if (strcmp("END",buffer) == 0) {
-            break;
-        }
+        if (strcmp("END",buffer) == 0)  break;
+
         if (buffer[0] == 'S') {
             found_spawn = 1;
             if (sscanf(buffer, "%c %f %f",&t,&x1,&y1) != 3) {
-                fprintf(stderr,"Parse error on: %s\n", buffer);
+                fprintf(stderr,"Load error on: %s\n", buffer);
                 free(walls);
                 return NULL;
             }
@@ -90,12 +88,12 @@ struct World* load_world(char* world_name) {
         }
 
         if (sscanf(buffer, "%f %f %f %f %d %d %d",&x1,&y1,&x2,&y2,&r,&g,&b) != 7) {
-            fprintf(stderr,"Parse error on: %s\n", buffer);
+            fprintf(stderr,"Load error on: %s\n", buffer);
             free(walls);
             return NULL;
         }
         if (!found_spawn) {
-            fprintf(stderr,"Parse error on: %s\n Spawn should be specified before any walls", buffer);
+            fprintf(stderr,"Load error on: %s\n Spawn should be specified before any walls", buffer);
             free(walls);
             return NULL;
         }
@@ -116,6 +114,7 @@ struct World* load_world(char* world_name) {
         free(walls);
         return NULL;
     }
+    
     world->wall_amount = count;
     world->spawn = spawn;
     world->walls = walls;
@@ -123,7 +122,7 @@ struct World* load_world(char* world_name) {
 }
 
 // prints the wall count and walls of the given world
-void print_world(struct World* world){
+void print_world(const struct World* world){
     printf("Wall Amount: %d\n", world->wall_amount);
 
     for (int i = 0; i<world->wall_amount;i++) {
@@ -133,7 +132,7 @@ void print_world(struct World* world){
 }
 
 
-void print_world_layout(struct World* world) {
+void print_world_layout(const struct World* world) {
     printf("Wall Amount: %d\n", world->wall_amount);
     int maxy = 0; int miny = 0;int maxx =0;int minx =0;
     //get world dimensions
@@ -225,18 +224,9 @@ struct World_names* check_world_file_syntax() {
 struct World_List* load_world_file() {
     struct World_names* names = check_world_file_syntax();
     struct World_List* file = (struct World_List*)malloc(sizeof(struct World_List));
-    if (file == NULL) {
-        free(names->names);
-        free(names);
-        return NULL;
-    }
+    if (file == NULL) goto delete_file;
     struct World** worlds = malloc(names->world_amt * sizeof(struct World*));
-    if (worlds == NULL) {
-        free(file);
-        free(names->names);
-        free(names);
-        return NULL;
-    }
+    if (worlds == NULL) goto delete_worlds;
     for (int i =0; i < names->world_amt; i++) {
         char* name = names->names + i * MAX_WORLD_NAME_LEN;
         struct World* world = load_world(name);
@@ -246,6 +236,13 @@ struct World_List* load_world_file() {
     file->names = names;
     file->worlds = worlds;
     return file;
+
+    delete_worlds:
+        free(file);
+    delete_file:
+        free(names->names);
+        free(names);
+    return NULL;
 }
 
 

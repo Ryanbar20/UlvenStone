@@ -29,8 +29,17 @@ struct World_List* world_list   = NULL;
 #define BUTTON_HEIGHT   100
 #define FONT_SIZE       32
 
-#define MAX_WORLDS 10
-#define MAX_WORLD_NAME_LEN 50
+#define MAX_WORLDS          10
+#define MAX_WORLD_NAME_LEN  50
+
+#define RED             255,0,0,255
+#define GREEN           0,255,0,255
+#define BLUE            0,0,255,255
+#define BLACK           0,0,0,255
+#define WHITE           255,255,255,255
+#define SHADOW          0,0,0,100
+#define SKY_COLOR       0,0,64,255
+#define FLOOR_COLOR     64,64,64,255
 
 const int game_letters[4]   = {6,0,12,4};
 const int editor_letters[6] = {4,3,8,19,14,17};
@@ -65,6 +74,8 @@ void createRenderer(SDL_Window* window) {
     }
     if (SDL_SetRenderDrawBlendMode(renderer,SDL_BLENDMODE_BLEND) != 0) {
         fprintf(stderr, "An error occured when initializing the renderer: %s\n", SDL_GetError());
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
         exit(1);
     }
 }
@@ -72,11 +83,15 @@ void init_images() {
     int imgflags = IMG_INIT_PNG;
     if (!(IMG_Init(imgflags) & imgflags)) {
         fprintf(stderr, "Couldnt initialize image loader: %s\n",IMG_GetError());
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
         exit(1);
     }
     surface =  IMG_Load("../resources/font.png");
     if (surface == NULL) {
         fprintf(stderr, "Couldnt load spritesheet: %s\n",IMG_GetError());
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
         exit(1);
     }
 }
@@ -102,8 +117,6 @@ int main() {
 
     //freeing data & SDL exiting
     destroy_world_list(world_list);
-    free(world->walls);
-    free(world);
     SDL_DestroyTexture(spriteSheet);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

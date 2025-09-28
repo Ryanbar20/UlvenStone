@@ -69,22 +69,20 @@ int menu_loop() {
         SDL_Rect editor     = {EDITOR_RECT};
         SDL_Rect game       = {GAME_RECT};
         SDL_Rect quit       = {QUIT_RECT};
-        SDL_SetRenderDrawColor(renderer, 255, 0,0, 255);
+        SDL_SetRenderDrawColor(renderer, RED);
         SDL_RenderFillRect(renderer,&quit);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+        SDL_SetRenderDrawColor(renderer, BLUE);
         SDL_RenderFillRect(renderer,&game);
         SDL_RenderFillRect(renderer, &editor);
+
+
         SDL_Rect world_rect = {WORLD_NAME_RECT};
         world_rect.y -= 15;
         for (int i =0; i < MAX_WORLDS; i++) {
             world_rect.y += 15;
-            if (i == selected_world) {
-                SDL_SetRenderDrawColor(renderer,255,255,255,255);
-                SDL_RenderFillRect(renderer,&world_rect);
-                SDL_SetRenderDrawColor(renderer,0,0,255,255);
-            } else {
-                SDL_RenderFillRect(renderer,&world_rect);
-            }
+            SDL_SetRenderDrawColor(renderer,BLUE);
+            if (i == selected_world) SDL_SetRenderDrawColor(renderer,WHITE);
+            SDL_RenderFillRect(renderer,&world_rect);
             
             if (i > world_list->world_amt) continue;
             char* name = world_list->names->names + i*sizeof(char)*MAX_WORLD_NAME_LEN;
@@ -93,22 +91,20 @@ int menu_loop() {
 
         if (display_world_out_of_bounds) {
             SDL_Rect error_rect = {WORLD_OUT_OF_BOUNDS_RECT};
-            SDL_SetRenderDrawColor(renderer,255,0,0,255);
+            SDL_SetRenderDrawColor(renderer,RED);
             SDL_RenderFillRect(renderer, &error_rect);
             char* error_msg = "cannot start game in nonexistent world";
             render_string(error_msg,&error_rect);
         }
 
 
-        //draw button text
         render_button(editor_letters,6,&editor);
         render_button(game_letters,4,&game);
         render_button(quit_letters,4,&quit);
 
-
-
-
         SDL_RenderPresent(renderer);
+
+
 
         dticks = SDL_GetTicks() - ticks;
         dticks = 1000/ FPS - dticks;

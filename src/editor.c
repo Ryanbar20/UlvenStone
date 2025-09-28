@@ -34,7 +34,7 @@ void render_world(struct World* world) {
                 (w.v2.x-viewpoint.x)*scale,(w.v2.y-viewpoint.y)*scale
             );
     }
-    SDL_SetRenderDrawColor(renderer,255,255,255,255);
+    SDL_SetRenderDrawColor(renderer,BLACK);
     SDL_RenderDrawPointF(renderer,(world->spawn.x-viewpoint.x) * scale,(world->spawn.y-viewpoint.y)*scale);
 }
 
@@ -111,11 +111,11 @@ int editor_loop() {
         SDL_RenderClear(renderer);
         //draw buttons
         if (pause) {
-            SDL_SetRenderDrawColor( renderer, 0,0,0, 100 );
+            SDL_SetRenderDrawColor( renderer, SHADOW);
             const SDL_Rect whole_screen =   {0,0,WIDTH,HEIGHT};
             const SDL_Rect rect =           {EDIT_MENU};
             SDL_RenderFillRect(renderer,&whole_screen);
-            SDL_SetRenderDrawColor( renderer,0,0,255,255);
+            SDL_SetRenderDrawColor( renderer,BLUE);
             SDL_RenderFillRect(renderer,&rect);
             //draw button text
             render_button(menu_letters,4,&rect);
