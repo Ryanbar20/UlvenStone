@@ -38,9 +38,7 @@ inline v2_f rotate(float rad, v2_f vector) {
 float check_hit(v2_f ray,v2_f pos, v2_f w1, v2_f w2,float allowed_distance) {
 
     if (ray.x < EPSILON) {
-        if (w1.x == w2.x && fabs(w2.x-pos.x) < EPSILON) {
-            return -1;
-        }
+        if (w1.x == w2.x && fabs(w2.x-pos.x) < EPSILON) return -1;
         ray.x += EPSILON;
     }
     const float a_ray     = ray.y / ray.x ;
@@ -59,9 +57,8 @@ float check_hit(v2_f ray,v2_f pos, v2_f w1, v2_f w2,float allowed_distance) {
     float hit_y             = a_ray * hit_x + b_ray;
 
     const float dist        = get_distance_squared((v2_f) {hit_x,hit_y}, pos);
-    const v2_f sized_ray    = add_vectors(pos, set_length(allowed_distance,ray));
-    const float dist2       = get_distance_squared((v2_f) {hit_x,hit_y},sized_ray);
-    if (dist2 >= allowed_distance*allowed_distance||dist > allowed_distance*allowed_distance) return -1;
+    const v2_f sized_ray    = add_vectors(pos, set_length(allowed_distance/ 2.0f,ray));
+    if (get_distance_squared((v2_f) {hit_x,hit_y},sized_ray) >= allowed_distance*allowed_distance / 4.0f) return -1;
     return sqrt(dist);
 }
 
