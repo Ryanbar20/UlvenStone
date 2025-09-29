@@ -9,33 +9,27 @@
 #define WALL_OR_END 4
 
 
-/*
-    TODO:
-    HANDLE MAX WORLD NAME LENGTH
-*/
 struct Wall{
     v2_f v1;
     v2_f v2;
-    int r;
-    int g;
-    int b;
+    i32 r,g,b;
 };
 
 
 struct World{
-    int wall_amount;
+    i32 wall_amount;
     v2_f spawn;
     struct Wall* walls;
 };
 
 
 struct World_names{
-    int world_amt;
+    i32 world_amt;
     char* names; // points to char[MAX_WORLDS][MAX_WORLD_NAME_LEN]
 };
 
 struct World_List{
-  int world_amt; // amount of worlds in the world file
+  i32 world_amt; // amount of worlds in the world file
   struct World_names* names; // names of the worlds
   struct World** worlds; // array containing all the worlds in the world_file
 };
@@ -49,7 +43,7 @@ struct World* load_world(char* world_name) {
         return NULL;
     }
     char buffer[256];
-    int found = 0;
+    i32 found = 0;
     //find world
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
         buffer[strcspn(buffer, "\n")] = '\0';
@@ -59,15 +53,20 @@ struct World* load_world(char* world_name) {
         }
     }
     if (!found) {
-        fprintf(stderr, "Invalid world name passed: %s\n",*world_name);
-        return NULL;
+        fprintf(stderr, "Invalid world name passed: %s\n",world_name);
+        goto file_error;
     }
 
     struct Wall* walls = (struct Wall*)malloc(MAX_WALLS * sizeof(struct Wall));
-    int count = 0;
-    float x1; float y1; float x2; float y2; int r; int g; int b;
+    if (!walls) {
+        fprintf(stderr, "Memory Allocation Failed in world_loader\n");
+        goto file_error;
+    }
+    i32 count = 0;
+    f32 x1, y1, x2, y2; 
+    i32 r, g, b;
     char t;
-    int found_spawn = 0;
+    i32 found_spawn = 0;
     v2_f spawn;
     // read world
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
@@ -76,117 +75,60 @@ struct World* load_world(char* world_name) {
         if (strcmp("END",buffer) == 0)  break;
 
         if (buffer[0] == 'S') {
+            if (sscanf(buffer, "%c %f %f",&t,&x1,&y1) != 3) goto load_error;
             found_spawn = 1;
-            if (sscanf(buffer, "%c %f %f",&t,&x1,&y1) != 3) {
-                fprintf(stderr,"Load error on: %s\n", buffer);
-                free(walls);
-                return NULL;
-            }
-            spawn.x = x1;
-            spawn.y = y1;
+            spawn.x     = x1;
+            spawn.y     = y1;
             continue;
         }
 
-        if (sscanf(buffer, "%f %f %f %f %d %d %d",&x1,&y1,&x2,&y2,&r,&g,&b) != 7) {
-            fprintf(stderr,"Load error on: %s\n", buffer);
-            free(walls);
-            return NULL;
-        }
-        if (!found_spawn) {
-            fprintf(stderr,"Load error on: %s\n Spawn should be specified before any walls", buffer);
-            free(walls);
-            return NULL;
-        }
-        struct Wall w = {{x1,y1},{x2,y2},r,g,b};
-        walls[count] = w;
-        count++; 
-    }
+        if (sscanf(buffer, "%f %f %f %f %d %d %d",&x1,&y1,&x2,&y2,&r,&g,&b) != 7) goto load_error;
+        if (!found_spawn) goto load_error;
 
-    // struct Wall* temp = (struct Wall*)realloc(walls, count*sizeof(struct Wall));
-    // if (temp == NULL) {
-    //     printf("Reallocation failed!\n");
-    // } else {
-    //     walls = temp;       
-    // }
+
+        walls[count++] = (struct Wall) {{x1,y1},{x2,y2},r,g,b};
+    }
     struct World* world = (struct World*)malloc(sizeof(struct World));
-    if (world == NULL) {
+    if (!world) {
         printf("Memory allocation failed for World\n");
-        free(walls);
-        return NULL;
+        goto world_malloc_error;
     }
     
-    world->wall_amount = count;
-    world->spawn = spawn;
-    world->walls = walls;
+    world->wall_amount  = count;
+    world->spawn        = spawn;
+    world->walls        = walls;
+    fclose(file);
     return world;
+
+    load_error:
+        fprintf(stderr,"Load error on: %s\n",buffer);
+    world_malloc_error:
+        free(walls);
+    file_error:
+        fclose(file);
+        return NULL;
 }
 
-// prints the wall count and walls of the given world
-void print_world(const struct World* world){
-    printf("Wall Amount: %d\n", world->wall_amount);
-
-    for (int i = 0; i<world->wall_amount;i++) {
-        struct Wall w = world->walls[i];
-        printf("%d %d %d %d %d %d %d\n",(int) w.v1.x,(int) w.v1.y,(int) w.v2.x,(int) w.v2.y,(int) w.r,w.g,w.b);
-    }
-}
-
-
-void print_world_layout(const struct World* world) {
-    printf("Wall Amount: %d\n", world->wall_amount);
-    int maxy = 0; int miny = 0;int maxx =0;int minx =0;
-    //get world dimensions
-    for (int i =0; i<world->wall_amount;i++) {
-        struct Wall w = world->walls[i];
-        if (w.v1.x > maxx)        {maxx = w.v1.x;}
-        else if (w.v1.x <minx)    {minx = w.v1.x;}
-        if (w.v2.x > maxx)        {maxx = w.v2.x;}
-        else if (w.v2.x <minx)    {minx = w.v2.x;}
-        if (w.v1.y > maxy)        {maxy = w.v1.y;}
-        else if (w.v1.y <miny)    {miny = w.v1.y;}
-        if (w.v2.y > maxy)        {maxy = w.v2.y;}
-        else if (w.v2.y <miny)    {miny = w.v2.y;}
-    }
-    
-    //get char[][] containing world layout
-    char layout[maxy-miny+1][maxx-minx+1];
-    memset(layout, '-',sizeof(layout));
-    for (int i =0; i<world->wall_amount;i++) {
-        struct Wall w = world->walls[i];
-        layout[(int) w.v1.y-miny][(int) w.v1.x-minx] = '#';
-        layout[(int) w.v2.y-miny][(int) w.v2.x-minx] = '#';
-    }
-
-    for (int y = maxy-miny; y>=0; y--) {
-        for (int x = 0; x<=(maxx-minx);x++) {
-            printf("%c",layout[y][x]);
-        }
-        printf("\n");
-    }
-
-
-}
 
 
 
 struct World_names* check_world_file_syntax() {
     /*
         Returns a pointer to a char[MAX_WORLDS][MAX_WORLD_NAME_LEN] containing all world names
-
-    
     */
     FILE* file = fopen("../resources/world.txt", "r");
-    if (file == NULL) {
+    if (!file) {
         fprintf(stderr, "Error while opening the world.txt file\n");
         return NULL;
     }
     char buffer[256];
     char* world_names = malloc(sizeof(char) * MAX_WORLDS * MAX_WORLD_NAME_LEN) ;
-    int num_world = 0;
-    int line =-1;
-    int next_token_expected = NAME;
+    i32 num_world = 0;
+    i32 line =-1;
+    i32 next_token_expected = NAME;
     char c; 
-    float t1; float t2; float t3; float t4;int t5;int t6;int t7;
+    f32 t1, t2, t3, t4;
+    i32 t5, t6, t7;
 
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
         line++;
@@ -203,19 +145,23 @@ struct World_names* check_world_file_syntax() {
             continue;
         }
         if (next_token_expected == NAME) {
-            buffer[strcspn(buffer, "\n")] = '\0';
+            buffer[strcspn(buffer, "\n")] = '\0';   // strcspn also works when the name is the only line (no \n visible that is)
             strcpy(world_names + num_world * MAX_WORLD_NAME_LEN,buffer);
             num_world++;
             next_token_expected = SPAWN;
             continue;
         }
-            fprintf(stderr, "Syntax error in world.txt at line %d: %s",line, buffer);
-            return NULL;
+        fprintf(stderr, "Syntax error in world.txt at line %d: %s",line, buffer);
+        return NULL;
     }
 
     // char* temp = (char*)realloc(world_names,sizeof(char) * MAX_WORLD_NAME_LEN * num_world);
     // if (temp != NULL) world_names = temp;
     struct World_names* names = malloc(sizeof(struct World_names));
+    if (!names) {
+        fprintf(stderr, "Error while allocating memory\n");
+        return NULL;
+    }
     names->world_amt = num_world; names->names = world_names;
     return names;
 }
@@ -223,13 +169,16 @@ struct World_names* check_world_file_syntax() {
 
 struct World_List* load_world_file() {
     struct World_names* names = check_world_file_syntax();
+    if (!names) return NULL;
     struct World_List* file = (struct World_List*)malloc(sizeof(struct World_List));
-    if (file == NULL) goto delete_file;
+    if (!file) goto delete_file;
     struct World** worlds = malloc(names->world_amt * sizeof(struct World*));
-    if (worlds == NULL) goto delete_worlds;
-    for (int i =0; i < names->world_amt; i++) {
+    if (!worlds) goto delete_worlds;
+
+    for (i32 i =0; i < names->world_amt; i++) {
         char* name = names->names + i * MAX_WORLD_NAME_LEN;
         struct World* world = load_world(name);
+        if (world == NULL) return NULL;
         worlds[i] = world;
     }
     file->world_amt = names->world_amt;
@@ -249,9 +198,46 @@ struct World_List* load_world_file() {
 void destroy_world_list(struct World_List* list) {
     free(list->names->names);
     free(list->names);
-    for (int i = 0; i < list->world_amt; i++) {
+    for (i32 i = 0; i < list->world_amt; i++) {
         free(list->worlds[i]);
     }
     free(list->worlds);
     free(list);
+}
+
+
+
+void print_world_layout(const struct World* world) {
+    printf("Wall Amount: %d\n", world->wall_amount);
+    i32 maxy = 0; i32 miny = 0;i32 maxx =0;i32 minx =0;
+    //get world dimensions
+    for (i32 i =0; i<world->wall_amount;i++) {
+        struct Wall w = world->walls[i];
+        if (w.v1.x > maxx)        {maxx = w.v1.x;}
+        else if (w.v1.x <minx)    {minx = w.v1.x;}
+        if (w.v2.x > maxx)        {maxx = w.v2.x;}
+        else if (w.v2.x <minx)    {minx = w.v2.x;}
+        if (w.v1.y > maxy)        {maxy = w.v1.y;}
+        else if (w.v1.y <miny)    {miny = w.v1.y;}
+        if (w.v2.y > maxy)        {maxy = w.v2.y;}
+        else if (w.v2.y <miny)    {miny = w.v2.y;}
+    }
+    
+    //get char[][] containing world layout
+    char layout[maxy-miny+1][maxx-minx+1];
+    memset(layout, '-',sizeof(layout));
+    for (i32 i =0; i<world->wall_amount;i++) {
+        struct Wall w = world->walls[i];
+        layout[(i32) w.v1.y-miny][(i32) w.v1.x-minx] = '#';
+        layout[(i32) w.v2.y-miny][(i32) w.v2.x-minx] = '#';
+    }
+
+    for (i32 y = maxy-miny; y>=0; y--) {
+        for (i32 x = 0; x<=(maxx-minx);x++) {
+            printf("%c",layout[y][x]);
+        }
+        printf("\n");
+    }
+
+
 }

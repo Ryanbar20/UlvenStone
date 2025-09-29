@@ -1,35 +1,17 @@
 
-/*
-    World selection                                                         ~
-        in editor or/and in menu? Know which worlds already exist   
-    zoom in/out, move                                                       v
-    World selection                                                         ~
-        in editor or/and in menu? Know which worlds already exist   
-    zoom in/out, move                                                       v
-        scale, viewpoint
-    wall movement
-        mouse click detection
-    wall addition
-        keyboard/button
-    save button
-        writer to world.txt
-    random world generator
-        wave func collapse
 
-
-*/
 
 #define EDIT_MENU (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - BUTTON_HEIGHT / 2, BUTTON_WIDTH, BUTTON_HEIGHT
 #define EDIT_SAVE (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - BUTTON_HEIGHT / 2 + 150, BUTTON_WIDTH, BUTTON_HEIGHT   
 #define SAVE_FLAG -1
 
 v2_f viewpoint      = {0,0};
-float scale         = 10.0f;
-int selected_wall   = 0;
-int selected_vertex = 0; //0 or 1
+f32 scale         = 10.0f;
+i32 selected_wall   = 0;
+i32 selected_vertex = 0; //0 or 1
 
 void render_world(struct World* world) {
-    for (int i =0; i<world->wall_amount; i++) {
+    for (i32 i =0; i<world->wall_amount; i++) {
         struct Wall w= world->walls[i];
         SDL_SetRenderDrawColor(renderer,w.r,w.g,w.b,255);
         if (i == selected_wall) {
@@ -53,12 +35,12 @@ void render_world(struct World* world) {
 }
 
 
-int handle_editor_button_press(int x, int y) {
-    int menu[4] = {EDIT_MENU};
+i32 handle_editor_button_press(i32 x, i32 y) {
+    i32 menu[4] = {EDIT_MENU};
     if (x >= menu[0] && y >= menu[1] && x <= menu[0]+menu[2] && y <= menu[1]+menu[3]) {
         return MENU_MODE;
     }
-    int save[4] = {EDIT_SAVE};
+    i32 save[4] = {EDIT_SAVE};
     if (x >= save[0] && y >= save[1] && x <= save[0]+save[2] && y <= save[1]+save[3]) {
         return SAVE_FLAG;
     }
@@ -66,7 +48,7 @@ int handle_editor_button_press(int x, int y) {
 }
 
 
-void move_vertex(float dx, float dy,struct World* w) {
+void move_vertex(f32 dx, f32 dy,struct World* w) {
 
     if (selected_vertex == 0) {
         w->walls[selected_wall].v1.x += dx;
@@ -92,20 +74,20 @@ void move_vertex(float dx, float dy,struct World* w) {
 
     snap to grid function?
 */
-int editor_loop() {
+i32 editor_loop() {
     SDL_Event e;
-    int mouse_x = WIDTH/2;
-    int mouse_y = HEIGHT/2;
-    int ticks   = 0;
-    int dticks  = 0;
-    int pause   = 0;
+    i32 mouse_x = WIDTH/2;
+    i32 mouse_y = HEIGHT/2;
+    i32 ticks   = 0;
+    i32 dticks  = 0;
+    i32 pause   = 0;
     struct World* world;
-    struct Wall* walls;
+    struct Wall* walls = NULL;
     if (selected_world >= world_list->world_amt) {
         world = (struct World*)malloc(sizeof(struct World));
-        if (world == NULL) return QUIT_MODE; // couldnt make new world
+        if (!world) return QUIT_MODE; // couldnt make new world
         walls = (struct Wall*)malloc(MAX_WALLS * sizeof(struct Wall));
-        if (walls == NULL) {
+        if (!walls) {
             free(world);
             return QUIT_MODE;
         }
@@ -121,7 +103,7 @@ int editor_loop() {
         ticks = SDL_GetTicks();
         while(SDL_PollEvent(&e) !=0) {
             if (e.type == SDL_QUIT) {
-                if (walls != NULL) {
+                if (!walls) {
                     free(world);
                     free(walls);
                 }
@@ -131,7 +113,13 @@ int editor_loop() {
             if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT && pause) {
                 SDL_GetMouseState(&mouse_x,&mouse_y);
                 mouse_x= handle_editor_button_press(mouse_x, mouse_y);
-                if (mouse_x == MENU_MODE) goto ret;
+                if (mouse_x == MENU_MODE) {
+                    if (walls != NULL) {
+                        free(world);
+                        free(walls);
+                    }
+                    return MENU_MODE;
+                }
                 if (mouse_x == SAVE_FLAG) {
                     printf("SAVE\n");
                     //save the edits
@@ -218,7 +206,7 @@ int editor_loop() {
             rect =             (SDL_Rect)   {EDIT_SAVE};
             SDL_SetRenderDrawColor( renderer,RED);
             SDL_RenderFillRect(renderer,&rect);
-            const int save[4] = {18,0,21,4};
+            const i32 save[4] = {18,0,21,4};
             render_button(&save[0],4, &rect);
         } 
         render_world(world);
@@ -229,13 +217,10 @@ int editor_loop() {
         dticks = 1000/ FPS - dticks;
         if (dticks >0) SDL_Delay(dticks);
     }
-
-
-
-    ret:
-        if (walls != NULL) {
-            free(world);
-            free(walls);
-        }
-        return MENU_MODE;
+    if (walls != NULL) {
+        free(world);
+        free(walls);
+    }
+    return MENU_MODE;
+        
 }

@@ -8,10 +8,10 @@
 #define WORLD_OUT_OF_BOUNDS_RECT    400,400,400,20
 #define WORLD_NAME_RECT 350, 100,400,10
 
-int handle_menu_button_press(int x,int y) {
-    const int editor[4] = {EDITOR_RECT};
-    const int game[4]   = {GAME_RECT};
-    const int quit[4]   = {QUIT_RECT};
+i32 handle_menu_button_press(i32  x,i32  y) {
+    const i32 editor[4] = {EDITOR_RECT};
+    const i32 game[4]   = {GAME_RECT};
+    const i32 quit[4]   = {QUIT_RECT};
     if (x >= editor[0] && y >= editor[1] && x <= editor[0]+editor[2] && y <= editor[1]+editor[3]) {
         return EDITOR_MODE;
     }
@@ -24,7 +24,7 @@ int handle_menu_button_press(int x,int y) {
     return MENU_MODE;
 }
 
-int key_to_digit(SDL_Keycode key) {
+i32 key_to_digit(SDL_Keycode key) {
     if (key >= SDLK_0 && key <= SDLK_9) {
         return key - SDLK_0;
     }
@@ -32,13 +32,13 @@ int key_to_digit(SDL_Keycode key) {
 }
 
 
-int menu_loop() {
+i32 menu_loop() {
     
-    int display_world_out_of_bounds = 0;
+    i32 display_world_out_of_bounds = 0;
     SDL_Event e;
-    int mouse_x; int mouse_y;
-    int ticks   = 0;
-    int dticks  = 0;
+    i32 mouse_x; i32 mouse_y;
+    i32 ticks   = 0;
+    i32 dticks  = 0;
     while (1){
         //main game loop
         ticks = SDL_GetTicks();
@@ -56,7 +56,7 @@ int menu_loop() {
                 if (mouse_x == QUIT_MODE)      return QUIT_MODE;
             }
             if (e.type == SDL_KEYDOWN) {
-                int k = key_to_digit(e.key.keysym.sym);
+                i32 k = key_to_digit(e.key.keysym.sym);
                 if (k == -1) continue;
                 selected_world = k;
             }
@@ -78,7 +78,7 @@ int menu_loop() {
 
         SDL_Rect world_rect = {WORLD_NAME_RECT};
         world_rect.y -= 15;
-        for (int i =0; i < MAX_WORLDS; i++) {
+        for (i32  i =0; i < MAX_WORLDS; i++) {
             world_rect.y += 15;
             SDL_SetRenderDrawColor(renderer,BLUE);
             if (i == selected_world) SDL_SetRenderDrawColor(renderer,WHITE);
