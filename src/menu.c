@@ -6,7 +6,7 @@
 #define EDITOR_RECT                 100, (HEIGHT / 2) - (BUTTON_HEIGHT / 2),                 BUTTON_WIDTH, BUTTON_HEIGHT
 #define GAME_RECT                   100, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) - GAME_OFFSET,   BUTTON_WIDTH, BUTTON_HEIGHT
 #define WORLD_OUT_OF_BOUNDS_RECT    400,400,400,20
-#define WORLD_NAME_RECT 350, 100,400,10
+#define WORLD_NAME_RECT             350, 100,400,10
 
 i32 handle_menu_button_press(i32  x,i32  y) {
     const i32 editor[4] = {EDITOR_RECT};
@@ -25,9 +25,7 @@ i32 handle_menu_button_press(i32  x,i32  y) {
 }
 
 i32 key_to_digit(SDL_Keycode key) {
-    if (key >= SDLK_0 && key <= SDLK_9) {
-        return key - SDLK_0;
-    }
+    if (key >= SDLK_0 && key <= SDLK_9) return key - SDLK_0;
     return -1;
 }
 
@@ -36,7 +34,8 @@ i32 menu_loop() {
     
     i32 display_world_out_of_bounds = 0;
     SDL_Event e;
-    i32 mouse_x; i32 mouse_y;
+    i32 mouse_x; 
+    i32 mouse_y;
     i32 ticks   = 0;
     i32 dticks  = 0;
     while (1){
@@ -64,25 +63,35 @@ i32 menu_loop() {
         }
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
-        //draw buttons
         
-        SDL_Rect editor     = {EDITOR_RECT};
-        SDL_Rect game       = {GAME_RECT};
-        SDL_Rect quit       = {QUIT_RECT};
-        SDL_SetRenderDrawColor(renderer, RED);
-        SDL_RenderFillRect(renderer,&quit);
-        SDL_SetRenderDrawColor(renderer, BLUE);
-        SDL_RenderFillRect(renderer,&game);
-        SDL_RenderFillRect(renderer, &editor);
+        {   // drawing buttons
+            SDL_Rect quit       = {QUIT_RECT};
+            SDL_SetRenderDrawColor(renderer, RED);
+            SDL_RenderFillRect(renderer,&quit);
+            render_button(quit_letters,4,&quit);
 
+            SDL_Rect game       = {GAME_RECT};
+            SDL_SetRenderDrawColor(renderer, BLUE);
+            SDL_RenderFillRect(renderer,&game);
+            render_button(game_letters,4,&game);
+
+            SDL_Rect editor     = {EDITOR_RECT};
+            SDL_RenderFillRect(renderer, &editor);
+            render_button(editor_letters,6,&editor);
+        }
 
         SDL_Rect world_rect = {WORLD_NAME_RECT};
         world_rect.y -= 15;
+        SDL_SetRenderDrawColor(renderer,BLUE);
         for (i32  i =0; i < MAX_WORLDS; i++) {
             world_rect.y += 15;
-            SDL_SetRenderDrawColor(renderer,BLUE);
-            if (i == selected_world) SDL_SetRenderDrawColor(renderer,WHITE);
-            SDL_RenderFillRect(renderer,&world_rect);
+            if (i == selected_world) {
+                SDL_SetRenderDrawColor(renderer,WHITE);
+                SDL_RenderFillRect(renderer,&world_rect);
+                SDL_SetRenderDrawColor(renderer,BLUE);
+            } else {
+                SDL_RenderFillRect(renderer,&world_rect);
+            }
             
             if (i > world_list->world_amt) continue;
             char* name = world_list->names->names + i*sizeof(char)*MAX_WORLD_NAME_LEN;
@@ -98,19 +107,13 @@ i32 menu_loop() {
         }
 
 
-        render_button(editor_letters,6,&editor);
-        render_button(game_letters,4,&game);
-        render_button(quit_letters,4,&quit);
+        
 
         SDL_RenderPresent(renderer);
 
-
-
-        dticks = SDL_GetTicks() - ticks;
-        dticks = 1000/ FPS - dticks;
+        dticks = 1000/ FPS - (SDL_GetTicks() - ticks);
         if (dticks >0) SDL_Delay(dticks);
     }
     return QUIT_MODE;
-
 
 }

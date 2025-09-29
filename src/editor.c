@@ -6,7 +6,7 @@
 #define SAVE_FLAG -1
 
 v2_f viewpoint      = {0,0};
-f32 scale         = 10.0f;
+f32 scale           = 10.0f;
 i32 selected_wall   = 0;
 i32 selected_vertex = 0; //0 or 1
 
@@ -24,6 +24,7 @@ void render_world(struct World* world) {
             }
             
             SDL_RenderFillRect(renderer, &r);
+            
         }
         SDL_RenderDrawLineF(renderer,
                 (w.v1.x-viewpoint.x)*scale,(w.v1.y-viewpoint.y)*scale,
@@ -83,9 +84,11 @@ i32 editor_loop() {
     i32 pause   = 0;
     struct World* world;
     struct Wall* walls = NULL;
+
+    // declare world
     if (selected_world >= world_list->world_amt) {
         world = (struct World*)malloc(sizeof(struct World));
-        if (!world) return QUIT_MODE; // couldnt make new world
+        if (!world) return QUIT_MODE;
         walls = (struct Wall*)malloc(MAX_WALLS * sizeof(struct Wall));
         if (!walls) {
             free(world);
@@ -146,9 +149,7 @@ i32 editor_loop() {
                         break;
                     case SDLK_o:
                         scale       *= 0.9;
-                        if (scale == 0.0) {
-                            scale = EPSILON;
-                        }
+                        if (scale == 0.0) scale = EPSILON;
                         break;
                     case SDLK_n:
                         if (world->wall_amount == 0) break;
@@ -196,25 +197,28 @@ i32 editor_loop() {
         SDL_RenderClear(renderer);
         //draw buttons
         if (pause) {
-            SDL_SetRenderDrawColor( renderer, SHADOW);
+            
             const SDL_Rect whole_screen =   {0,0,WIDTH,HEIGHT};
-            SDL_Rect rect =                 {EDIT_MENU};
+            SDL_SetRenderDrawColor( renderer, SHADOW);
             SDL_RenderFillRect(renderer,&whole_screen);
+
+            SDL_Rect rect =                 {EDIT_MENU};
             SDL_SetRenderDrawColor( renderer,BLUE);
             SDL_RenderFillRect(renderer,&rect);
             render_button(menu_letters,4,&rect);
+
             rect =             (SDL_Rect)   {EDIT_SAVE};
             SDL_SetRenderDrawColor( renderer,RED);
             SDL_RenderFillRect(renderer,&rect);
+            
             const i32 save[4] = {18,0,21,4};
             render_button(&save[0],4, &rect);
         } 
-        render_world(world);
 
+        render_world(world);
         SDL_RenderPresent(renderer);
 
-        dticks = SDL_GetTicks() - ticks;
-        dticks = 1000/ FPS - dticks;
+        dticks = 1000/ FPS - (SDL_GetTicks() - ticks);
         if (dticks >0) SDL_Delay(dticks);
     }
     if (walls != NULL) {

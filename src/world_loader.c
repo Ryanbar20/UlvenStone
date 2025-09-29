@@ -10,8 +10,7 @@
 
 
 struct Wall{
-    v2_f v1;
-    v2_f v2;
+    v2_f v1, v2;
     i32 r,g,b;
 };
 

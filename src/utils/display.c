@@ -22,9 +22,7 @@ void render_button(const i32* letters,i32 letter_amount,const SDL_Rect* button) 
 
 i32 char_to_index(char a) {
     i32 i = (i32) a;
-    if (i >90) {
-        return i -97;
-    }
+    if (i >90) return i -97;
     return i - 65;
 }
 
