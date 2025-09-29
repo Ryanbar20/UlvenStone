@@ -100,11 +100,17 @@ int editor_loop() {
     int dticks  = 0;
     int pause   = 0;
     struct World* world;
+    struct Wall* walls;
     if (selected_world >= world_list->world_amt) {
         world = (struct World*)malloc(sizeof(struct World));
         if (world == NULL) return QUIT_MODE; // couldnt make new world
+        walls = (struct Wall*)malloc(MAX_WALLS * sizeof(struct Wall));
+        if (walls == NULL) {
+            free(world);
+            return QUIT_MODE;
+        }
         world->wall_amount = 0;
-        world->walls = NULL;
+        world->walls = walls;
     } else {
         world = world_list->worlds[selected_world];
     }
@@ -114,12 +120,18 @@ int editor_loop() {
         //main game loop
         ticks = SDL_GetTicks();
         while(SDL_PollEvent(&e) !=0) {
-            if (e.type == SDL_QUIT) return QUIT_MODE;
+            if (e.type == SDL_QUIT) {
+                if (walls != NULL) {
+                    free(world);
+                    free(walls);
+                }
+                return QUIT_MODE;
+            }
             //check if any button was clicked
             if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT && pause) {
                 SDL_GetMouseState(&mouse_x,&mouse_y);
                 mouse_x= handle_editor_button_press(mouse_x, mouse_y);
-                if (mouse_x == MENU_MODE) return MENU_MODE;
+                if (mouse_x == MENU_MODE) goto ret;
                 if (mouse_x == SAVE_FLAG) {
                     printf("SAVE\n");
                     //save the edits
@@ -151,9 +163,11 @@ int editor_loop() {
                         }
                         break;
                     case SDLK_n:
+                        if (world->wall_amount == 0) break;
                         selected_wall = (selected_wall + 1) % world->wall_amount;
                         break;
                     case SDLK_b:
+                        if (world->wall_amount == 0) break;
                         selected_wall = (selected_wall+world->wall_amount - 1) % world->wall_amount;
                         break;
                     case SDLK_r:
@@ -215,5 +229,13 @@ int editor_loop() {
         dticks = 1000/ FPS - dticks;
         if (dticks >0) SDL_Delay(dticks);
     }
-    return QUIT_MODE;
+
+
+
+    ret:
+        if (walls != NULL) {
+            free(world);
+            free(walls);
+        }
+        return MENU_MODE;
 }
