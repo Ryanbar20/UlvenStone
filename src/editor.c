@@ -20,6 +20,8 @@
 */
 
 #define EDIT_MENU (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - BUTTON_HEIGHT / 2, BUTTON_WIDTH, BUTTON_HEIGHT
+#define EDIT_SAVE (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - BUTTON_HEIGHT / 2 + 150, BUTTON_WIDTH, BUTTON_HEIGHT   
+#define SAVE_FLAG -1
 
 v2_f viewpoint      = {0,0};
 float scale         = 10.0f;
@@ -53,7 +55,14 @@ void render_world(struct World* world) {
 
 int handle_editor_button_press(int x, int y) {
     int menu[4] = {EDIT_MENU};
-    return (x >= menu[0] && y >= menu[1] && x <= menu[0]+menu[2] && y <= menu[1]+menu[3]);
+    if (x >= menu[0] && y >= menu[1] && x <= menu[0]+menu[2] && y <= menu[1]+menu[3]) {
+        return MENU_MODE;
+    }
+    int save[4] = {EDIT_SAVE};
+    if (x >= save[0] && y >= save[1] && x <= save[0]+save[2] && y <= save[1]+save[3]) {
+        return SAVE_FLAG;
+    }
+    return EDITOR_MODE;
 }
 
 
@@ -109,7 +118,13 @@ int editor_loop() {
             //check if any button was clicked
             if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT && pause) {
                 SDL_GetMouseState(&mouse_x,&mouse_y);
-                if (handle_editor_button_press(mouse_x, mouse_y)) return MENU_MODE;
+                mouse_x= handle_editor_button_press(mouse_x, mouse_y);
+                if (mouse_x == MENU_MODE) return MENU_MODE;
+                if (mouse_x == SAVE_FLAG) {
+                    printf("SAVE\n");
+                    //save the edits
+                }
+                
             }
             if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym)
@@ -173,12 +188,16 @@ int editor_loop() {
         if (pause) {
             SDL_SetRenderDrawColor( renderer, SHADOW);
             const SDL_Rect whole_screen =   {0,0,WIDTH,HEIGHT};
-            const SDL_Rect rect =           {EDIT_MENU};
+            SDL_Rect rect =                 {EDIT_MENU};
             SDL_RenderFillRect(renderer,&whole_screen);
             SDL_SetRenderDrawColor( renderer,BLUE);
             SDL_RenderFillRect(renderer,&rect);
-            //draw button text
             render_button(menu_letters,4,&rect);
+            rect =             (SDL_Rect)   {EDIT_SAVE};
+            SDL_SetRenderDrawColor( renderer,RED);
+            SDL_RenderFillRect(renderer,&rect);
+            const int save[4] = {18,0,21,4};
+            render_button(&save[0],4, &rect);
         } 
         render_world(world);
 
