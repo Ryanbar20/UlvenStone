@@ -21,14 +21,26 @@
 
 #define EDIT_MENU (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - BUTTON_HEIGHT / 2, BUTTON_WIDTH, BUTTON_HEIGHT
 
-static v2_f viewpoint = {0,0};
-static float scale = 10.0f;
-
+v2_f viewpoint      = {0,0};
+float scale         = 10.0f;
+int selected_wall   = 0;
+int selected_vertex = 0; //0 or 1
 
 void render_world(struct World* world) {
     for (int i =0; i<world->wall_amount; i++) {
         struct Wall w= world->walls[i];
         SDL_SetRenderDrawColor(renderer,w.r,w.g,w.b,255);
+        if (i == selected_wall) {
+            SDL_SetRenderDrawColor(renderer,WHITE);
+            SDL_Rect r;
+            if (selected_vertex ==0 ) {
+                r = (SDL_Rect) {(w.v1.x-viewpoint.x)*scale - 5,(w.v1.y-viewpoint.y)*scale -5,10,10};
+            } else {
+                r = (SDL_Rect) {(w.v2.x-viewpoint.x)*scale - 5,(w.v2.y-viewpoint.y)*scale -5,10,10};
+            }
+            
+            SDL_RenderFillRect(renderer, &r);
+        }
         SDL_RenderDrawLineF(renderer,
                 (w.v1.x-viewpoint.x)*scale,(w.v1.y-viewpoint.y)*scale,
                 (w.v2.x-viewpoint.x)*scale,(w.v2.y-viewpoint.y)*scale
@@ -44,17 +56,30 @@ int handle_editor_button_press(int x, int y) {
     return (x >= menu[0] && y >= menu[1] && x <= menu[0]+menu[2] && y <= menu[1]+menu[3]);
 }
 
-/*
-    W/A/S/D             for moving around
-    I/O                 for zooming (I)n/(O)ut
-    n                   for new wall
-    r                   for select next wall
-    x                   for delete selected wall
-    1                   for select vertex 1
-    2                   for select vertex 2
-    UP/DOWN/LEFT/RIGHT  for moving selected vertex (should scale with scale)
 
-    save button during pause screen
+void move_vertex(float dx, float dy,struct World* w) {
+
+    if (selected_vertex == 0) {
+        w->walls[selected_wall].v1.x += dx;
+        w->walls[selected_wall].v1.y += dy;
+        return;
+    }
+    w->walls[selected_wall].v2.x += dx;
+    w->walls[selected_wall].v2.y += dy;
+    return;
+}
+
+/*
+    W/A/S/D             for moving around               x
+    I/O                 for zooming (I)n/(O)ut          x
+    n/b                 for next/previous wall          x
+    r                   for new wall
+    x                   for delete selected wall
+    1                   for select vertex 1             x
+    2                   for select vertex 2             x
+    h/j/k/l (LDUR)      for moving selected vertex      x
+
+    save button during pause screen                     x
 
     snap to grid function?
 */
@@ -65,7 +90,17 @@ int editor_loop() {
     int ticks   = 0;
     int dticks  = 0;
     int pause   = 0;
-    struct World* world = world_list->worlds[selected_world]; // TODO : world selection
+    struct World* world;
+    if (selected_world >= world_list->world_amt) {
+        world = (struct World*)malloc(sizeof(struct World));
+        if (world == NULL) return QUIT_MODE; // couldnt make new world
+        world->wall_amount = 0;
+        world->walls = NULL;
+    } else {
+        world = world_list->worlds[selected_world];
+    }
+
+     
     while (1){
         //main game loop
         ticks = SDL_GetTicks();
@@ -100,8 +135,33 @@ int editor_loop() {
                             scale = EPSILON;
                         }
                         break;
+                    case SDLK_n:
+                        selected_wall = (selected_wall + 1) % world->wall_amount;
+                        break;
+                    case SDLK_b:
+                        selected_wall = (selected_wall+world->wall_amount - 1) % world->wall_amount;
+                        break;
+                    case SDLK_1:
+                        selected_vertex = 0;
+                        break;
+                    case SDLK_2:
+                        selected_vertex = 1;
+                        break;
+                    case SDLK_h:
+                        move_vertex(-0.2,0,world);
+                        break;
+                    case SDLK_j:
+                        move_vertex(0,-0.2,world);
+                        break;
+                    case SDLK_k:
+                        move_vertex(0,0.2,world);
+                        break;
+                    case SDLK_l:
+                        move_vertex(0.2,0,world);
+                        break;
                     case SDLK_p:
                         pause ^= 1; //flip the pause flag
+                        break;
                     default :
                         break;
                 }
