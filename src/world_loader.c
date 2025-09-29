@@ -1,4 +1,4 @@
-#define MAX_WALLS 100
+
 
 
 
@@ -102,12 +102,12 @@ struct World* load_world(char* world_name) {
         count++; 
     }
 
-    struct Wall* temp = (struct Wall*)realloc(walls, count*sizeof(struct Wall));
-    if (temp == NULL) {
-        printf("Reallocation failed!\n");
-    } else {
-        walls = temp;       
-    }
+    // struct Wall* temp = (struct Wall*)realloc(walls, count*sizeof(struct Wall));
+    // if (temp == NULL) {
+    //     printf("Reallocation failed!\n");
+    // } else {
+    //     walls = temp;       
+    // }
     struct World* world = (struct World*)malloc(sizeof(struct World));
     if (world == NULL) {
         printf("Memory allocation failed for World\n");
@@ -211,10 +211,10 @@ struct World_names* check_world_file_syntax() {
         }
             fprintf(stderr, "Syntax error in world.txt at line %d: %s",line, buffer);
             return NULL;
-        }
+    }
 
-    char* temp = (char*)realloc(world_names,sizeof(char) * MAX_WORLD_NAME_LEN * num_world);
-    if (temp != NULL) world_names = temp;
+    // char* temp = (char*)realloc(world_names,sizeof(char) * MAX_WORLD_NAME_LEN * num_world);
+    // if (temp != NULL) world_names = temp;
     struct World_names* names = malloc(sizeof(struct World_names));
     names->world_amt = num_world; names->names = world_names;
     return names;

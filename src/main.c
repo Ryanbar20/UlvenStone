@@ -29,6 +29,7 @@ struct World_List* world_list   = NULL;
 #define BUTTON_HEIGHT   100
 #define FONT_SIZE       32
 
+#define MAX_WALLS           100
 #define MAX_WORLDS          10
 #define MAX_WORLD_NAME_LEN  50
 

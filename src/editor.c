@@ -156,6 +156,14 @@ int editor_loop() {
                     case SDLK_b:
                         selected_wall = (selected_wall+world->wall_amount - 1) % world->wall_amount;
                         break;
+                    case SDLK_r:
+                        if (world->wall_amount == MAX_WALLS) {
+                            printf("Max Walls reached\n");
+                            break;
+                        }
+                        world->walls[world->wall_amount] = (struct Wall) {(v2_f) {-1,0},(v2_f) {1,0}, 255,0,255};
+                        world->wall_amount++;
+                        break;
                     case SDLK_1:
                         selected_vertex = 0;
                         break;
