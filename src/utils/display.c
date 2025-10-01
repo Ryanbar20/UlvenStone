@@ -10,7 +10,10 @@ v2_f get_sprite_coordinate(i32 sprite_id) {
 
 
 
-void render_button(const i32* letters,i32 letter_amount,const SDL_Rect* button) {
+void render_button(const i32* letters,i32 letter_amount,const SDL_Rect* button,int r, int g, int b, int a) {
+    SDL_SetRenderDrawColor( renderer,r,g,b,a);
+    SDL_RenderFillRect(renderer,button);
+    
     for (i32 i = 0; i < letter_amount; i++) {
         v2_f letter_xy = get_sprite_coordinate(letters[i]);
         SDL_Rect srcRect = (SDL_Rect) {letter_xy.x, letter_xy.y,8,8};

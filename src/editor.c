@@ -129,16 +129,17 @@ i32 editor_loop() {
                         new_list = save_world(world,world_list->names[selected_world]);
                         if ( new_list == NULL) {
                             printf("Couldnt save world\n");
+                            continue;
                         };
                     } else {
                         // add an option to enter a name for your world
                         // MAKE SURE THE STRING NAME IS MALLOCED
                     }
-                    printf("saved\n");
                     destroy_world_list(world_list);
                     world_list = new_list;
                     if (world_list == NULL) {
                         printf("error while saving\n");
+                        exit(1);
                     }
                     return MENU_MODE;
                     
@@ -219,16 +220,11 @@ i32 editor_loop() {
             SDL_RenderFillRect(renderer,&whole_screen);
 
             SDL_Rect rect =                 {EDIT_MENU};
-            SDL_SetRenderDrawColor( renderer,BLUE);
-            SDL_RenderFillRect(renderer,&rect);
-            render_button(menu_letters,4,&rect);
+            render_button(menu_letters,4,&rect,BLUE);
 
             rect =             (SDL_Rect)   {EDIT_SAVE};
-            SDL_SetRenderDrawColor( renderer,RED);
-            SDL_RenderFillRect(renderer,&rect);
-            
             const i32 save[4] = {18,0,21,4};
-            render_button(&save[0],4, &rect);
+            render_button(&save[0],4, &rect,RED);
         } 
 
         render_world(world);
@@ -236,10 +232,6 @@ i32 editor_loop() {
 
         dticks = 1000/ FPS - (SDL_GetTicks() - ticks);
         if (dticks >0) SDL_Delay(dticks);
-    }
-    if (walls != NULL) {
-        free(world);
-        free(walls);
     }
     return MENU_MODE;
         

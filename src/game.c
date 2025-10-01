@@ -154,9 +154,7 @@ i32 game_loop() {
             SDL_RenderFillRect(renderer,&whole_screen);
 
             const SDL_Rect rect =           {GAME_MENU};
-            SDL_SetRenderDrawColor( renderer,BLUE);
-            SDL_RenderFillRect(renderer,&rect);
-            render_button(menu_letters,4,&rect);
+            render_button(menu_letters,4,&rect, BLUE);
         }
         SDL_RenderPresent( renderer );
 

@@ -7,17 +7,18 @@
 #define GAME_RECT                   100, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) - GAME_OFFSET,   BUTTON_WIDTH, BUTTON_HEIGHT
 #define WORLD_OUT_OF_BOUNDS_RECT    400,400,400,20
 #define WORLD_NAME_RECT             350, 100,400,10
+#define WORLD_NAME_RECT_Y_OFFSET    15
 
 i32 handle_menu_button_press(i32  x,i32  y) {
     const i32 editor[4] = {EDITOR_RECT};
-    const i32 game[4]   = {GAME_RECT};
-    const i32 quit[4]   = {QUIT_RECT};
     if (x >= editor[0] && y >= editor[1] && x <= editor[0]+editor[2] && y <= editor[1]+editor[3]) {
         return EDITOR_MODE;
     }
+    const i32 game[4]   = {GAME_RECT};
     if (x >= game[0] && y >= game[1] && x <= game[0]+game[2] && y <= game[1]+game[3]) {
         return GAME_MODE;
     }
+    const i32 quit[4]   = {QUIT_RECT};
     if (x >= quit[0] && y >= quit[1] && x <= quit[0]+quit[2] && y <= quit[1]+quit[3]) {
         return QUIT_MODE;
     }
@@ -46,13 +47,23 @@ i32 menu_loop() {
             //check if any button was clicked
             if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
                 SDL_GetMouseState(&mouse_x,&mouse_y);
-                mouse_x         = handle_menu_button_press(mouse_x, mouse_y);
-                if (mouse_x == GAME_MODE) {
-                    if (selected_world < world_list->world_amt) return GAME_MODE;
-                    display_world_out_of_bounds = 1;
-                }     
-                if (mouse_x == EDITOR_MODE)    return EDITOR_MODE;
-                if (mouse_x == QUIT_MODE)      return QUIT_MODE;
+                switch (handle_menu_button_press(mouse_x, mouse_y)) {
+                    case GAME_MODE:
+                        if (selected_world < world_list->world_amt) return GAME_MODE;
+                        display_world_out_of_bounds = 1;
+                        break;
+                    case EDITOR_MODE:
+                        if (selected_world < world_list->world_amt) return EDITOR_MODE;
+                        // else we should create a name for the new world
+                        // when saving, it is automatically put in the correct place of the world-list...
+                        return EDITOR_MODE;
+                        break;
+                    case QUIT_MODE:
+                        return QUIT_MODE;
+                    default:
+                        break;
+
+                }
             }
             if (e.type == SDL_KEYDOWN) {
                 i32 k = key_to_digit(e.key.keysym.sym);
@@ -66,25 +77,20 @@ i32 menu_loop() {
         
         {   // drawing buttons
             SDL_Rect quit       = {QUIT_RECT};
-            SDL_SetRenderDrawColor(renderer, RED);
-            SDL_RenderFillRect(renderer,&quit);
-            render_button(quit_letters,4,&quit);
+            render_button(quit_letters,4,&quit,RED);
 
             SDL_Rect game       = {GAME_RECT};
-            SDL_SetRenderDrawColor(renderer, BLUE);
-            SDL_RenderFillRect(renderer,&game);
-            render_button(game_letters,4,&game);
+            render_button(game_letters,4,&game,BLUE);
 
             SDL_Rect editor     = {EDITOR_RECT};
-            SDL_RenderFillRect(renderer, &editor);
-            render_button(editor_letters,6,&editor);
+            render_button(editor_letters,6,&editor,BLUE);
         }
 
         SDL_Rect world_rect = {WORLD_NAME_RECT};
-        world_rect.y -= 15;
+        world_rect.y -= WORLD_NAME_RECT_Y_OFFSET;
         SDL_SetRenderDrawColor(renderer,BLUE);
         for (i32  i =0; i < MAX_WORLDS; i++) {
-            world_rect.y += 15;
+            world_rect.y += WORLD_NAME_RECT_Y_OFFSET;
             if (i == selected_world) {
                 SDL_SetRenderDrawColor(renderer,WHITE);
                 SDL_RenderFillRect(renderer,&world_rect);
