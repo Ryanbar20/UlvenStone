@@ -120,11 +120,11 @@ int main() {
     //Data&File loading
     spriteSheet = SDL_CreateTextureFromSurface(renderer,surface);
     world_list = load_world_file();
-    struct World* world = world_list->worlds[selected_world];
     i32 mode            = MENU_MODE;
     // Main process loop. Each screen returns the next screen to render or quit
     while (mode != QUIT_MODE) {
-        if (mode == GAME_MODE)      {mode = game_loop(world);   continue;}
+	
+        if (mode == GAME_MODE)      {mode = game_loop();   continue;}
         if (mode == EDITOR_MODE)    {mode = editor_loop(); continue;}
         if (mode == MENU_MODE)      {mode = menu_loop();}
     }

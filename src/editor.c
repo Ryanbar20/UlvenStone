@@ -124,8 +124,24 @@ i32 editor_loop() {
                     return MENU_MODE;
                 }
                 if (mouse_x == SAVE_FLAG) {
-                    printf("SAVE\n");
-                    //save the edits
+                    struct World_List* new_list = NULL;
+                    if (selected_world < world_list->world_amt) {
+                        new_list = save_world(world,world_list->names[selected_world]);
+                        if ( new_list == NULL) {
+                            printf("Couldnt save world\n");
+                        };
+                    } else {
+                        // add an option to enter a name for your world
+                        // MAKE SURE THE STRING NAME IS MALLOCED
+                    }
+                    printf("saved\n");
+                    destroy_world_list(world_list);
+                    world_list = new_list;
+                    if (world_list == NULL) {
+                        printf("error while saving\n");
+                    }
+                    return MENU_MODE;
+                    
                 }
                 
             }

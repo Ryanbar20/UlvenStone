@@ -10,3 +10,4 @@ temp.txt
 /.idea/inspectionProfiles/Project_Default.xml
 /src/SDL2_image.dll
 test/test_ray_casting.exe
+resources/backup.txt

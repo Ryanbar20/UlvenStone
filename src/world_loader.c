@@ -29,7 +29,7 @@ struct World_names{
 
 struct World_List{
   i32 world_amt; // amount of worlds in the world file
-  struct World_names* names; // names of the worlds
+  char** names; // names of the worlds
   struct World** worlds; // array containing all the worlds in the world_file
 };
 
@@ -151,40 +151,58 @@ struct World_names* check_world_file_syntax() {
             continue;
         }
         fprintf(stderr, "Syntax error in world.txt at line %d: %s",line, buffer);
+        fclose(file);
         return NULL;
     }
-
-    // char* temp = (char*)realloc(world_names,sizeof(char) * MAX_WORLD_NAME_LEN * num_world);
-    // if (temp != NULL) world_names = temp;
     struct World_names* names = malloc(sizeof(struct World_names));
     if (!names) {
         fprintf(stderr, "Error while allocating memory\n");
+        fclose(file);
         return NULL;
     }
     names->world_amt = num_world; names->names = world_names;
+    fclose(file);
     return names;
 }
 
 
 struct World_List* load_world_file() {
+    /*
+        Loads the world.txt file into a World_List struct
+    */
     struct World_names* names = check_world_file_syntax();
     if (!names) return NULL;
     struct World_List* file = (struct World_List*)malloc(sizeof(struct World_List));
     if (!file) goto delete_file;
-    struct World** worlds = malloc(names->world_amt * sizeof(struct World*));
+    struct World** worlds = malloc(MAX_WORLDS * sizeof(struct World*));
     if (!worlds) goto delete_worlds;
+    char** names_list = (char**)malloc(MAX_WORLDS * sizeof(char*));
+    if (!names_list) goto delete_names_list;
 
     for (i32 i =0; i < names->world_amt; i++) {
-        char* name = names->names + i * MAX_WORLD_NAME_LEN;
-        struct World* world = load_world(name);
-        if (world == NULL) return NULL;
+        struct World* world = load_world(names->names + i * MAX_WORLD_NAME_LEN);
+        if (world == NULL) goto delete_all;
         worlds[i] = world;
+        // names is a blob of bytes, thus freeing them per name doesnt work ...
+        char* name = (char*)malloc(sizeof(char) * MAX_WORLD_NAME_LEN);
+        if (name == NULL) {
+            //handle malloc failed
+        }
+        strncpy(name,(names->names + i * sizeof(char) *  MAX_WORLD_NAME_LEN), MAX_WORLD_NAME_LEN);
+        names_list[i] = name;
     }
     file->world_amt = names->world_amt;
-    file->names = names;
+    file->names = names_list;
     file->worlds = worlds;
+    free(names->names);
+    free(names);
     return file;
+    
 
+    delete_all:
+        free(names_list);
+    delete_names_list:
+        free(worlds);
     delete_worlds:
         free(file);
     delete_file:
@@ -195,13 +213,80 @@ struct World_List* load_world_file() {
 
 
 void destroy_world_list(struct World_List* list) {
-    free(list->names->names);
-    free(list->names);
     for (i32 i = 0; i < list->world_amt; i++) {
+        free(list->worlds[i]->walls);
         free(list->worlds[i]);
+        free(list->names[i]);
     }
+    free(list->names);
     free(list->worlds);
     free(list);
+}
+
+
+
+i32 world_exists(const char* name,const struct World_List* list) {
+    for (i32 i =0; i<list->world_amt;i++) {
+        if (strncmp(name,list->names[i],MAX_WORLD_NAME_LEN) ==0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+
+
+struct World_List* save_world(struct World* world,  char* const name) {
+    /*
+        saves the world by deleting the contents of world.txt and rewriting them
+
+        It first performs checks, then loads the current file and adds World world to it
+        Then it writes the new list to the world.txt file by first emptying it out completely
+
+        Returns a World_List containing all worlds (updated)
+    */
+    if (strnlen(name,MAX_WORLD_NAME_LEN) == MAX_WORLD_NAME_LEN) return NULL;
+    struct World_List* list = load_world_file();
+    if (list == NULL) return NULL;
+
+
+    i32 new_world_added = world_exists(name, list);
+    if (new_world_added != -1) {
+        list->worlds[new_world_added] = load_world(name);
+        char* name_cpy = malloc(MAX_WORLD_NAME_LEN);
+        if (name_cpy == NULL) {
+            destroy_world_list(list);
+            return NULL;
+        }
+        strncpy(name_cpy,name,MAX_WORLD_NAME_LEN);
+        list->names[new_world_added] = name_cpy;
+
+
+        new_world_added = 0;
+    } else {
+        list->names[list->world_amt] = name;   // IF THIS IS NOT MALLOCED -> ERROR
+        list->worlds[list->world_amt] = world; // IF THIS IS NOT MALLOCED -> ERROR
+        new_world_added = 1;
+    }
+    list->world_amt +=new_world_added;
+    FILE* world_txt = fopen("../resources/world.txt", "w+");
+    if (world_txt == NULL) {
+        destroy_world_list(list);
+        return NULL;
+    }
+    for (i32 i = 0; i < list->world_amt; i++) {
+        struct World* current_world = list->worlds[i];
+        fprintf(world_txt, "%s\n",list->names[i]);
+        fprintf(world_txt, "S %f %f\n", current_world->spawn.x,current_world->spawn.y);
+        for (i32 j = 0; j < current_world->wall_amount; j++) {
+            struct Wall cur_wall = current_world->walls[j];
+            fprintf(world_txt,"%f %f %f %f %d %d %d\n",cur_wall.v1.x,cur_wall.v1.y,
+                            cur_wall.v2.x,cur_wall.v2.y,cur_wall.r,cur_wall.g,cur_wall.b );
+        }
+        fprintf(world_txt, "END\n");
+    }
+    fclose(world_txt);
+    return list;
 }
 
 

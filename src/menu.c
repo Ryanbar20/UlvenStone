@@ -92,9 +92,8 @@ i32 menu_loop() {
             } else {
                 SDL_RenderFillRect(renderer,&world_rect);
             }
-            
-            if (i > world_list->world_amt) continue;
-            char* name = world_list->names->names + i*sizeof(char)*MAX_WORLD_NAME_LEN;
+            if (i >= world_list->world_amt) continue;
+            char* name = world_list->names[i];
             render_string(name,&world_rect);
         }
 
@@ -110,7 +109,6 @@ i32 menu_loop() {
         
 
         SDL_RenderPresent(renderer);
-
         dticks = 1000/ FPS - (SDL_GetTicks() - ticks);
         if (dticks >0) SDL_Delay(dticks);
     }

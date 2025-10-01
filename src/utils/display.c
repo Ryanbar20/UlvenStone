@@ -36,7 +36,6 @@ void render_string(const char* string, const SDL_Rect* rect) {
         SDL_Rect srcRect = (SDL_Rect) {letter_xy.x, letter_xy.y,8,8};
         SDL_Rect dstRect = (SDL_Rect) {rect->x + 9*i,rect->y+1,8,8};
         SDL_RenderCopy(renderer, spriteSheet, &srcRect, &dstRect);
-
         i++;
     }
 }
