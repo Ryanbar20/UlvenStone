@@ -5,10 +5,10 @@
 #define EDIT_SAVE (WIDTH / 2) - BUTTON_WIDTH / 2, (HEIGHT / 2) - BUTTON_HEIGHT / 2 + 150, BUTTON_WIDTH, BUTTON_HEIGHT   
 #define SAVE_FLAG -1
 
-v2_f viewpoint      = {0,0};
-f32 scale           = 10.0f;
-i32 selected_wall   = 0;
-i32 selected_vertex = 0; //0 or 1
+v2_f viewpoint          = {0,0};
+f32 scale               = 10.0f;
+i32 selected_wall       = 0;
+bool selected_vertex    = 0; //0 or 1
 
 void render_world(struct World* world) {
     for (i32 i =0; i<world->wall_amount; i++) {
@@ -77,11 +77,11 @@ void move_vertex(f32 dx, f32 dy,struct World* w) {
 */
 i32 editor_loop() {
     SDL_Event e;
-    i32 mouse_x = WIDTH/2;
-    i32 mouse_y = HEIGHT/2;
-    i32 ticks   = 0;
-    i32 dticks  = 0;
-    i32 pause   = 0;
+    i32 mouse_x     = WIDTH/2;
+    i32 mouse_y     = HEIGHT/2;
+    i32 ticks       = 0;
+    i32 dticks      = 0;
+    bool pause      = 0;
     struct World* world;
     struct Wall* walls = NULL;
 

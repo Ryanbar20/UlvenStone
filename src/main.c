@@ -25,6 +25,7 @@ SDL_Surface* surface            = NULL;
 SDL_Texture* spriteSheet        = NULL;
 struct World_List* world_list   = NULL;
 
+typedef _Bool   bool;
 typedef float   f32;
 typedef int32_t i32;
 

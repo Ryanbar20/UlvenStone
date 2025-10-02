@@ -88,8 +88,7 @@ i32 game_loop() {
     pos         = world->spawn;
 
     
-    i32 quit    = 0;
-    i32 pause   = 0;
+    bool pause      = 0;
 
     SDL_Event e;
     i32 mouse_x = WIDTH/2;
@@ -98,7 +97,7 @@ i32 game_loop() {
     i32 ticks   = 0;
     i32 dticks  = 0;
     
-    while (!quit){
+    while (1){
         //main game loop
         ticks   = SDL_GetTicks();
         while(SDL_PollEvent(&e) !=0){

@@ -42,7 +42,7 @@ struct World* load_world(char* world_name) {
         return NULL;
     }
     char buffer[256];
-    i32 found = 0;
+    bool found = 0;
     //find world
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
         buffer[strcspn(buffer, "\n")] = '\0';
@@ -65,7 +65,7 @@ struct World* load_world(char* world_name) {
     f32 x1, y1, x2, y2; 
     i32 r, g, b;
     char t;
-    i32 found_spawn = 0;
+    bool found_spawn = 0;
     v2_f spawn;
     // read world
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
@@ -235,7 +235,7 @@ i32 world_exists(const char* name,const struct World_List* list) {
 }
 
 
-
+//TODO: fix
 struct World_List* save_world(struct World* world,  char* const name) {
     /*
         saves the world by deleting the contents of world.txt and rewriting them
