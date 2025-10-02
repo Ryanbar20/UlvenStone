@@ -195,7 +195,7 @@ i32 editor_loop() {
             SDL_SetRenderDrawColor( renderer, SHADOW);
             SDL_RenderFillRect(renderer,&whole_screen);
             render_button(menu_letters,4,&menu,BLUE);
-            render_string(&save_letters[0],4, &rect,RED);
+            render_button(save_letters,4, &save,RED);
         } 
 
         render_world(world);
