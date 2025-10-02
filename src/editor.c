@@ -31,7 +31,7 @@ void render_world(struct World* world) {
                 (w.v2.x-viewpoint.x)*scale,(w.v2.y-viewpoint.y)*scale
             );
     }
-    SDL_SetRenderDrawColor(renderer,BLACK);
+    SDL_SetRenderDrawColor(renderer,WHITE);
     SDL_RenderDrawPointF(renderer,(world->spawn.x-viewpoint.x) * scale,(world->spawn.y-viewpoint.y)*scale);
 }
 
@@ -82,12 +82,7 @@ i32 editor_loop() {
     i32 ticks       = 0;
     i32 dticks      = 0;
     bool pause      = 0;
-    struct World* world;
-
-    // declare world
-    printf("%d\n",selected_world);
-    world = world_list->worlds[selected_world];
-
+    struct World* world= world_list->worlds[selected_world];
      
     while (1){
         //main game loop
@@ -193,15 +188,14 @@ i32 editor_loop() {
         if (pause) {
             
             const SDL_Rect whole_screen =   {0,0,WIDTH,HEIGHT};
+            const SDL_Rect save =           {EDIT_SAVE};
+            const i32 save_letters[4] =     {18,0,21,4};
+            const SDL_Rect menu =           {EDIT_MENU};
+
             SDL_SetRenderDrawColor( renderer, SHADOW);
             SDL_RenderFillRect(renderer,&whole_screen);
-
-            SDL_Rect rect =                 {EDIT_MENU};
-            render_button(menu_letters,4,&rect,BLUE);
-
-            rect =             (SDL_Rect)   {EDIT_SAVE};
-            const i32 save[4] = {18,0,21,4};
-            render_button(&save[0],4, &rect,RED);
+            render_button(menu_letters,4,&menu,BLUE);
+            render_string(&save_letters[0],4, &rect,RED);
         } 
 
         render_world(world);

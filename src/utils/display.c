@@ -29,7 +29,9 @@ i32 char_to_index(char a) {
     return i - 65;
 }
 
-void render_string(const char* string, const SDL_Rect* rect) {
+void render_string(const char* string, const SDL_Rect* rect,int r, int g, int b, int a) {
+    SDL_SetRenderDrawColor( renderer,r,g,b,a);
+    SDL_RenderFillRect(renderer,rect);
     i32 i = 0;
     while (1) {
         char c = *(string + i);

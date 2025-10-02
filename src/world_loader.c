@@ -245,12 +245,13 @@ struct World_List* save_world(struct World* world,  char* const name) {
         Returns a World_List containing all worlds (updated)
     */
     if (strnlen(name,MAX_WORLD_NAME_LEN) == MAX_WORLD_NAME_LEN) return NULL;
-    struct World_List* list;
+    struct World_List* list= world_list;
 
     struct World_List* current_list = load_world_file();
     if (current_list == NULL) return NULL;
     i32 new_world_added = world_exists(name, current_list);
     if (new_world_added != -1) {
+
         list = current_list;
         struct Wall* wall_copy = (struct Wall*)malloc(sizeof(struct Wall) * MAX_WALLS);
         if (wall_copy == NULL) {
@@ -259,6 +260,7 @@ struct World_List* save_world(struct World* world,  char* const name) {
         }
         struct World* world_copy = (struct World*)malloc(sizeof(struct World));
         if (world_copy == NULL) {
+            free(wall_copy);
             destroy_world_list(list);
             return NULL;
         }
@@ -274,9 +276,6 @@ struct World_List* save_world(struct World* world,  char* const name) {
         }
         strncpy(name_cpy,name,MAX_WORLD_NAME_LEN);
         list->names[new_world_added] = name_cpy;
-
-    } else {
-        list = world_list;
     }
     FILE* world_txt = fopen("../resources/world.txt", "w+");
     if (world_txt == NULL) {
@@ -299,7 +298,7 @@ struct World_List* save_world(struct World* world,  char* const name) {
 }
 
 
-
+//deprecated
 void print_world_layout(const struct World* world) {
     printf("Wall Amount: %d\n", world->wall_amount);
     i32 maxy = 0; i32 miny = 0;i32 maxx =0;i32 minx =0;

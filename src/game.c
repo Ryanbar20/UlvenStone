@@ -142,21 +142,18 @@ i32 game_loop() {
         SDL_RenderFillRect(renderer, &((SDL_Rect) {0,0,WIDTH,HEIGHT/2}));
         SDL_SetRenderDrawColor(renderer,FLOOR_COLOR);
         SDL_RenderFillRect(renderer, &((SDL_Rect) {0,HEIGHT/2,WIDTH,(HEIGHT/2)}));
-
         cast_rays(world);
-        if (pause) {
-            
+        
+        if (pause) {      
             const SDL_Rect whole_screen =   {0,0,WIDTH,HEIGHT};
+            const SDL_Rect rect =           {GAME_MENU};
             SDL_SetRenderDrawColor( renderer, SHADOW);
             SDL_RenderFillRect(renderer,&whole_screen);
-
-            const SDL_Rect rect =           {GAME_MENU};
             render_button(menu_letters,4,&rect, BLUE);
         }
         SDL_RenderPresent( renderer );
 
         dticks = 1000/ FPS - (SDL_GetTicks() - ticks);
-        //printf("%d\n", dticks);
         if (dticks >0) SDL_Delay(dticks);
     }
     return QUIT_MODE;
