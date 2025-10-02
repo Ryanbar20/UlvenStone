@@ -30,9 +30,18 @@ i32 key_to_digit(SDL_Keycode key) {
     return -1;
 }
 
+char key_to_char(SDL_Keycode key) {
+    if (key >= SDLK_a && key <= SDLK_z) return key - SDLK_a + 97;
+    return -1;
+}
+
 
 i32 menu_loop() {
     
+    bool reading_new_world_name = 0;
+    i32 new_world_name_len = 0;         // if reading_new_world_name = 0, this should always be 0
+    char* new_world_name = NULL;        // if reading_new_world_name = 0, this should always be NULL
+
     i32 display_world_out_of_bounds = 0;
     SDL_Event e;
     i32 mouse_x; 
@@ -54,9 +63,13 @@ i32 menu_loop() {
                         break;
                     case EDITOR_MODE:
                         if (selected_world < world_list->world_amt) return EDITOR_MODE;
-                        // else we should create a name for the new world
-                        // when saving, it is automatically put in the correct place of the world-list...
-                        return EDITOR_MODE;
+                        reading_new_world_name = 1;
+                        new_world_name_len = 0;
+                        new_world_name = (char*)malloc(sizeof(char) * MAX_WORLD_NAME_LEN);
+                        if (new_world_name == NULL) {
+                            return QUIT_MODE;
+                        }
+                        memset(new_world_name,'\0',sizeof(sizeof(char) * MAX_WORLD_NAME_LEN));
                         break;
                     case QUIT_MODE:
                         return QUIT_MODE;
@@ -67,8 +80,37 @@ i32 menu_loop() {
             }
             if (e.type == SDL_KEYDOWN) {
                 i32 k = key_to_digit(e.key.keysym.sym);
-                if (k == -1) continue;
-                selected_world = k;
+                if (k != -1) {
+                    selected_world = k;
+                    continue;
+                }
+                if (reading_new_world_name) {
+                    char c = key_to_char(e.key.keysym.sym);
+                    if ( c != -1) {
+                        new_world_name[new_world_name_len++] = c;
+                    }
+                    if (e.key.keysym.sym == SDLK_RETURN || e.key.keysym.sym == SDLK_KP_ENTER) {
+                        struct World* world = (struct World*)malloc(sizeof(struct World));
+                        if (!world) return QUIT_MODE;
+                        struct Wall* walls = (struct Wall*)malloc(MAX_WALLS * sizeof(struct Wall));
+                        if (!walls) {
+                            free(world);
+                            return QUIT_MODE;
+                        }
+                        world->wall_amount = 0;
+                        world->walls = walls;
+                        world->spawn = (v2_f) {0.35,0.35};
+                        world_list->names[world_list->world_amt] = new_world_name;
+                        world_list->worlds[world_list->world_amt] = world;
+                        selected_world= world_list->world_amt;
+                        world_list->world_amt++;
+                        return EDITOR_MODE;
+                    }
+
+
+                }
+                
+                
             }
 
         }

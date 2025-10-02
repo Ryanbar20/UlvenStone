@@ -83,22 +83,10 @@ i32 editor_loop() {
     i32 dticks      = 0;
     bool pause      = 0;
     struct World* world;
-    struct Wall* walls = NULL;
 
     // declare world
-    if (selected_world >= world_list->world_amt) {
-        world = (struct World*)malloc(sizeof(struct World));
-        if (!world) return QUIT_MODE;
-        walls = (struct Wall*)malloc(MAX_WALLS * sizeof(struct Wall));
-        if (!walls) {
-            free(world);
-            return QUIT_MODE;
-        }
-        world->wall_amount = 0;
-        world->walls = walls;
-    } else {
-        world = world_list->worlds[selected_world];
-    }
+    printf("%d\n",selected_world);
+    world = world_list->worlds[selected_world];
 
      
     while (1){
@@ -106,10 +94,6 @@ i32 editor_loop() {
         ticks = SDL_GetTicks();
         while(SDL_PollEvent(&e) !=0) {
             if (e.type == SDL_QUIT) {
-                if (!walls) {
-                    free(world);
-                    free(walls);
-                }
                 return QUIT_MODE;
             }
             //check if any button was clicked
@@ -117,26 +101,19 @@ i32 editor_loop() {
                 SDL_GetMouseState(&mouse_x,&mouse_y);
                 mouse_x= handle_editor_button_press(mouse_x, mouse_y);
                 if (mouse_x == MENU_MODE) {
-                    if (walls != NULL) {
-                        free(world);
-                        free(walls);
-                    }
                     return MENU_MODE;
                 }
                 if (mouse_x == SAVE_FLAG) {
-                    struct World_List* new_list = NULL;
-                    if (selected_world < world_list->world_amt) {
-                        new_list = save_world(world,world_list->names[selected_world]);
-                        if ( new_list == NULL) {
-                            printf("Couldnt save world\n");
-                            continue;
-                        };
-                    } else {
-                        // add an option to enter a name for your world
-                        // MAKE SURE THE STRING NAME IS MALLOCED
+                    struct World_List* new_list = save_world(world,world_list->names[selected_world]);
+                    if ( new_list == NULL) {
+                        printf("Couldnt save world\n");
+                        continue;
+                    };
+                    
+                    if (new_list != world_list) {
+                        destroy_world_list(world_list);
+                        world_list = new_list;
                     }
-                    destroy_world_list(world_list);
-                    world_list = new_list;
                     if (world_list == NULL) {
                         printf("error while saving\n");
                         exit(1);

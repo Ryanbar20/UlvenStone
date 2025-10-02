@@ -131,7 +131,7 @@ struct World_names* check_world_file_syntax() {
 
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
         line++;
-        if (buffer[0] == 'E'&& buffer[1] =='N'&&  buffer[2] =='D'&& buffer[3] =='\n' && (next_token_expected == END || next_token_expected == WALL_OR_END)) {
+        if (buffer[0] == 'E'&& buffer[1] =='N'&&  buffer[2] =='D' && (next_token_expected == END || next_token_expected == WALL_OR_END)) {
             next_token_expected = NAME;
             continue;
         }
@@ -245,13 +245,13 @@ struct World_List* save_world(struct World* world,  char* const name) {
         Returns a World_List containing all worlds (updated)
     */
     if (strnlen(name,MAX_WORLD_NAME_LEN) == MAX_WORLD_NAME_LEN) return NULL;
-    struct World_List* list = load_world_file();
-    if (list == NULL) return NULL;
+    struct World_List* list;
 
-
-    i32 new_world_added = world_exists(name, list);
+    struct World_List* current_list = load_world_file();
+    if (current_list == NULL) return NULL;
+    i32 new_world_added = world_exists(name, current_list);
     if (new_world_added != -1) {
-
+        list = current_list;
         struct Wall* wall_copy = (struct Wall*)malloc(sizeof(struct Wall) * MAX_WALLS);
         if (wall_copy == NULL) {
             destroy_world_list(list);
@@ -275,14 +275,9 @@ struct World_List* save_world(struct World* world,  char* const name) {
         strncpy(name_cpy,name,MAX_WORLD_NAME_LEN);
         list->names[new_world_added] = name_cpy;
 
-
-        new_world_added = 0;
     } else {
-        list->names[list->world_amt] = name;   // IF THIS IS NOT MALLOCED -> ERROR
-        list->worlds[list->world_amt] = world; // IF THIS IS NOT MALLOCED -> ERROR
-        new_world_added = 1;
+        list = world_list;
     }
-    list->world_amt +=new_world_added;
     FILE* world_txt = fopen("../resources/world.txt", "w+");
     if (world_txt == NULL) {
         destroy_world_list(list);

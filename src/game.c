@@ -86,8 +86,6 @@ i32 game_loop() {
     struct World* world = world_list->worlds[selected_world];
     view        = set_length(1, (v2_f) {0,1});
     pos         = world->spawn;
-
-    
     bool pause      = 0;
 
     SDL_Event e;
@@ -158,7 +156,7 @@ i32 game_loop() {
         SDL_RenderPresent( renderer );
 
         dticks = 1000/ FPS - (SDL_GetTicks() - ticks);
-        printf("%d\n", dticks);
+        //printf("%d\n", dticks);
         if (dticks >0) SDL_Delay(dticks);
     }
     return QUIT_MODE;
