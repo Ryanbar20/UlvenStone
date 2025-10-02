@@ -7,6 +7,7 @@
 #define GAME_RECT                   100, (HEIGHT / 2) - (BUTTON_HEIGHT / 2) - GAME_OFFSET,   BUTTON_WIDTH, BUTTON_HEIGHT
 #define WORLD_OUT_OF_BOUNDS_RECT    400,400,400,20
 #define WORLD_NAME_RECT             350, 100,400,10
+#define INPUT_RECT                  WIDTH / 10, HEIGHT / 10, WIDTH * 0.8, HEIGHT *0.8
 #define WORLD_NAME_RECT_Y_OFFSET    15
 
 i32 handle_menu_button_press(i32  x,i32  y) {
@@ -75,7 +76,6 @@ i32 menu_loop() {
                         break;
 
                     default:
-                        return QUIT_MODE;
                         break;
 
                 }
@@ -149,6 +149,10 @@ i32 menu_loop() {
                     render_string(world_list->names[i],&world_rect,c.r,c.g,c.b,c.a);
                 }
             }
+        }
+        if (reading_new_world_name) {
+            SDL_Rect input_rect = {INPUT_RECT};
+            render_string("enter level name",&input_rect, BLUE);
         }
 
         if (display_world_out_of_bounds) {
