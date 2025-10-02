@@ -235,7 +235,6 @@ i32 world_exists(const char* name,const struct World_List* list) {
 }
 
 
-//TODO: fix
 struct World_List* save_world(struct World* world,  char* const name) {
     /*
         saves the world by deleting the contents of world.txt and rewriting them
@@ -252,7 +251,22 @@ struct World_List* save_world(struct World* world,  char* const name) {
 
     i32 new_world_added = world_exists(name, list);
     if (new_world_added != -1) {
-        list->worlds[new_world_added] = load_world(name);
+
+        struct Wall* wall_copy = (struct Wall*)malloc(sizeof(struct Wall) * MAX_WALLS);
+        if (wall_copy == NULL) {
+            destroy_world_list(list);
+            return NULL;
+        }
+        struct World* world_copy = (struct World*)malloc(sizeof(struct World));
+        if (world_copy == NULL) {
+            destroy_world_list(list);
+            return NULL;
+        }
+        memcpy(wall_copy,world->walls,sizeof(struct Wall) * MAX_WALLS);
+        memcpy(world_copy,world,sizeof(struct World));
+        world_copy->walls = wall_copy;
+
+        list->worlds[new_world_added] =world_copy;
         char* name_cpy = malloc(MAX_WORLD_NAME_LEN);
         if (name_cpy == NULL) {
             destroy_world_list(list);
