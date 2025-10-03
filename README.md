@@ -5,8 +5,8 @@ A simple renderer connected with a menu, the renderer and a world editor.<br>
 Up to 10 worlds can be made and changed using the world editor and seen using the rendering engine.<br>
 
 ## Requirements
-You will need to install SDL2 and SDL2_Image on your system before being able to run this program.<br>
-You will also need to put an SDL2.dll and SDL2_image.dll file in the src folder <br>
+You will need to install `SDL2` and `SDL2_Image` on your system before being able to run this program.<br>
+You will also need to put an `SDL2.dll` and `SDL2_image.dll` file in the src folder <br>
 You will need to have `make` installed on your system to compile the program
 
 ## Compilation
